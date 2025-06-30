@@ -45,10 +45,4 @@ CLAUDE.md
 run.bat
 setup.bat
 Folder_Creation.bat
-utils/__pycache__/ai_engine.cpython-312.pyc
-utils/__pycache__/config.cpython-312.pyc
-utils/__pycache__/pdf_image_service.cpython-312.pyc
-utils/__pycache__/post_creator.cpython-312.pyc
-utils/__pycache__/schedules.cpython-312.pyc
-utils/__pycache__/sites.cpython-312.pyc
-utils/__pycache__/youtube_service.cpython-312.pyc
+utils/__pycache__/*.pyc
