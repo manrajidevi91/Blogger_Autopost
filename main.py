@@ -13,8 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    sites = load_sites_data()
-    return render_template('index.html', sites=sites)
+    return render_template('index.html')
 
 @app.route('/api/sites', methods=['GET', 'POST'])
 def api_sites():
@@ -66,6 +65,15 @@ def load_site_detail(site_name):
     site = get_site_by_name(site_name)
     templates = list_site_templates(site_name)
     return render_template("partials/site_detail.html", site=site, templates=templates)
+
+@app.route('/load/sites')
+def load_sites():
+    sites = load_sites_data()
+    return render_template('partials/sites.html', sites=sites)
+
+@app.route('/load/create_site')
+def load_create_site():
+    return render_template('partials/create_site.html')
 
 @app.route('/api/create_post', methods=['POST'])
 def api_create_post():
