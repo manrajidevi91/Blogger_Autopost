@@ -1,2 +1,77 @@
 <!-- partials/create_site.html -->
-<p>Create Site Partial</p>
+<h2>Create New Site</h2>
+<form id="create-site-form">
+    <div class="mb-3">
+        <label for="site-name" class="form-label">Site Name</label>
+        <input type="text" class="form-control" id="site-name" required>
+    </div>
+    <div class="mb-3">
+        <label for="blogger-id" class="form-label">Blogger Blog ID</label>
+        <input type="text" class="form-control" id="blogger-id" readonly>
+    </div>
+    <div class="mb-3">
+        <label for="api-key" class="form-label">Blogger API Key</label>
+        <input type="text" class="form-control" id="api-key" required>
+    </div>
+    <div class="mb-3">
+        <label for="language" class="form-label">Language</label>
+        <select id="language" class="form-select">
+            <option value="en" selected>English</option>
+            <option value="hi">Hindi</option>
+            <option value="bn">Bengali</option>
+            <option value="ta">Tamil</option>
+            <option value="te">Telugu</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="mr">Marathi</option>
+            <option value="gu">Gujarati</option>
+            <option value="pa">Punjabi</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Site</button>
+</form>
+
+<script>
+function generateBlogId() {
+    return Math.floor(Math.random() * 1e12).toString();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('blogger-id').value = generateBlogId();
+});
+
+document.getElementById('create-site-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('site-name').value,
+        blog_id: document.getElementById('blogger-id').value,
+        api_key: document.getElementById('api-key').value,
+        language: document.getElementById('language').value
+    };
+    fetch('/api/sites', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(body => ({ status: response.status, body })))
+    .then(result => {
+        if (result.status === 201) {
+            this.reset();
+            document.getElementById('blogger-id').value = generateBlogId();
+            if (typeof loadPartial === 'function') {
+                loadPartial('sites');
+            } else {
+                location.reload();
+            }
+        } else {
+            alert(result.body.error || 'Error creating site');
+        }
+    })
+    .catch(err => {
+        console.error('Error creating site:', err);
+        alert('Error creating site');
+    });
+});
+</script>
