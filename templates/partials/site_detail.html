@@ -1,6 +1,102 @@
 <!-- partials/site_detail.html -->
-<h2>{{ site.name }} Details</h2>
+<h2>{{ site.name }} Management</h2>
+<div class="mb-3">
+    <strong>Language:</strong> {{ site.language }}<br>
+    <strong>Blog ID:</strong> {{ site.blog_id }}
+</div>
 
+<h3>Create Post</h3>
+<form id="post-now-form">
+    <input type="hidden" id="post-site-name" value="{{ site.name }}">
+    <div class="mb-3">
+        <label for="source-type" class="form-label">Source Type</label>
+        <select id="source-type" class="form-select">
+            <option value="url">URL</option>
+            <option value="youtube">YouTube</option>
+            <option value="pdf">PDF</option>
+            <option value="image">Image</option>
+        </select>
+    </div>
+    <div id="source-input-container" class="mb-3"></div>
+    <div class="mb-3">
+        <label for="ai-model" class="form-label">AI Model</label>
+        <select id="ai-model" class="form-select">
+            <option value="ChatGPT">ChatGPT</option>
+            <option value="Gemini">Gemini</option>
+            <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
+            <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Template</label>
+        <div id="template-radio-group" class="d-flex flex-wrap gap-3">
+            {% for template in templates %}
+            <div class="form-check text-center">
+                <input class="form-check-input" type="radio" name="template" id="template{{ loop.index }}" value="{{ template }}" {% if loop.first %}checked{% endif %}>
+                <label class="form-check-label" for="template{{ loop.index }}">
+                    <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}" style="width:120px;height:80px;border:1px solid #ccc;"></iframe>
+                    <div>{{ template }}</div>
+                </label>
+            </div>
+            {% else %}
+            <p>No templates uploaded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Post Now</button>
+</form>
+
+<hr>
+<h3>Schedule Post</h3>
+<form id="schedule-form">
+    <input type="hidden" id="schedule-site-name" value="{{ site.name }}">
+    <div class="mb-3">
+        <label for="schedule-source-type" class="form-label">Source Type</label>
+        <select id="schedule-source-type" class="form-select">
+            <option value="url">URL</option>
+            <option value="youtube">YouTube</option>
+            <option value="pdf">PDF</option>
+            <option value="image">Image</option>
+        </select>
+    </div>
+    <div id="schedule-source-input" class="mb-3"></div>
+    <div class="mb-3">
+        <label for="schedule-ai-model" class="form-label">AI Model</label>
+        <select id="schedule-ai-model" class="form-select">
+            <option value="ChatGPT">ChatGPT</option>
+            <option value="Gemini">Gemini</option>
+            <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
+            <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Templates</label>
+        <div id="schedule-templates" class="d-flex flex-wrap gap-3">
+            {% for template in templates %}
+            <div class="form-check text-center">
+                <input class="form-check-input" type="checkbox" name="templates" id="schedule-template{{ loop.index }}" value="{{ template }}">
+                <label class="form-check-label" for="schedule-template{{ loop.index }}">
+                    <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}" style="width:120px;height:80px;border:1px solid #ccc;"></iframe>
+                    <div>{{ template }}</div>
+                </label>
+            </div>
+            {% else %}
+            <p>No templates uploaded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="scheduled-time" class="form-label">Date &amp; Time</label>
+        <input type="datetime-local" id="scheduled-time" class="form-control" required>
+    </div>
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="repeat-checkbox">
+        <label class="form-check-label" for="repeat-checkbox">Repeat</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Schedule</button>
+</form>
+
+<hr>
 <h3>Upload New Template</h3>
 <form id="upload-template-form" enctype="multipart/form-data">
     <input type="hidden" name="site_name" value="{{ site.name }}">
@@ -9,32 +105,100 @@
 </form>
 
 <h3>Existing Templates</h3>
-<ul id="existing-templates-list">
+<div id="existing-templates-list" class="d-flex flex-wrap gap-3">
     {% for template in templates %}
-    <li>{{ template }}</li>
+    <div class="text-center">
+        <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}" style="width:120px;height:80px;border:1px solid #ccc;"></iframe>
+        <div>{{ template }}</div>
+    </div>
     {% else %}
-    <li>No templates uploaded yet.</li>
+    <p>No templates uploaded yet.</p>
     {% endfor %}
-</ul>
+</div>
 
 <script>
-    document.getElementById('upload-template-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(this);
-        fetch('/api/upload_template', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert(data.message);
-                // Reload site detail to show new template
-                loadSiteDetail('{{ site.name }}');
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => console.error('Error uploading template:', error));
-    });
+function updateInput(containerId, type) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const input = document.createElement('input');
+    input.className = 'form-control';
+    if (type === 'url' || type === 'youtube') {
+        input.type = 'text';
+        input.placeholder = 'Enter URL';
+    } else if (type === 'pdf' || type === 'image') {
+        input.type = 'file';
+    }
+    container.appendChild(input);
+}
+
+document.getElementById('source-type').addEventListener('change', e => {
+    updateInput('source-input-container', e.target.value);
+});
+document.getElementById('schedule-source-type').addEventListener('change', e => {
+    updateInput('schedule-source-input', e.target.value);
+});
+updateInput('source-input-container', document.getElementById('source-type').value);
+updateInput('schedule-source-input', document.getElementById('schedule-source-type').value);
+
+document.getElementById('post-now-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const inputEl = document.querySelector('#source-input-container input');
+    const data = {
+        site_name: document.getElementById('post-site-name').value,
+        content_source: document.getElementById('source-type').value,
+        ai_model: document.getElementById('ai-model').value,
+        template: document.querySelector('input[name="template"]:checked')?.value,
+        source_input: inputEl.type === 'file' ? (inputEl.files[0] ? inputEl.files[0].name : '') : inputEl.value
+    };
+    fetch('/api/create_post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(d => alert(d.message || d.error))
+    .catch(err => { console.error(err); alert('Failed to create post'); });
+});
+
+document.getElementById('schedule-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const inputEl = document.querySelector('#schedule-source-input input');
+    const templates = Array.from(document.querySelectorAll('#schedule-templates input[name="templates"]:checked')).map(i => i.value);
+    const payload = {
+        site_name: document.getElementById('schedule-site-name').value,
+        content_source: document.getElementById('schedule-source-type').value,
+        source_input: inputEl.type === 'file' ? (inputEl.files[0] ? inputEl.files[0].name : '') : inputEl.value,
+        scheduled_time: document.getElementById('scheduled-time').value,
+        repeat: document.getElementById('repeat-checkbox').checked,
+        ai_model: document.getElementById('schedule-ai-model').value,
+        template: templates
+    };
+    fetch('/api/schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(d => alert(d.message || d.error))
+    .catch(err => { console.error(err); alert('Failed to create schedule'); });
+});
+
+document.getElementById('upload-template-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/api/upload_template', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            loadSiteDetail('{{ site.name }}');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => console.error('Error uploading template:', error));
+});
 </script>
