@@ -1,5 +1,77 @@
 <!-- partials/config.html -->
-<h2>Configuration Panel</h2>
+<style>
+    /* Basic styling for the configuration panel */
+    .config-panel {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f4f4f4;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .config-panel h2, .config-panel h3 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .config-panel form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .config-panel label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .config-panel select, .config-panel button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box; /* Ensure padding doesn't increase width */
+    }
+
+    .config-panel button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .config-panel button:hover {
+        background-color: #0056b3;
+    }
+
+    #current-model-config ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    #current-model-config li {
+        background-color: #e9ecef;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+
+    #current-model-config li strong {
+        color: #007bff;
+    }
+</style>
+<div class="config-panel">
+    <h2>Configuration Panel</h2>
 
 <h3>AI Model Configuration</h3>
 <form id="model-config-form">
