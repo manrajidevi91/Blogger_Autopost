@@ -1,0 +1,61 @@
+<!-- partials/config.html -->
+<h2>Configuration Panel</h2>
+
+<h3>AI Model Configuration</h3>
+<form id="model-config-form">
+    <label for="site-select">Select Site:</label>
+    <select id="site-select" name="site_name">
+        {% for site_name, site_data in model_config.items() %}
+        <option value="{{ site_name }}">{{ site_name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="model-select">Select AI Model:</label>
+    <select id="model-select" name="model">
+        {% for model in available_models %}
+        <option value="{{ model }}">{{ model }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Save Configuration</button>
+</form>
+
+<div id="current-model-config">
+    <h3>Current Model Configurations:</h3>
+    <ul>
+        {% for site_name, config in model_config.items() %}
+        <li><strong>{{ site_name }}:</strong> {{ config.model }}</li>
+        {% else %}
+        <li>No model configurations saved yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+    document.getElementById('model-config-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const siteName = document.getElementById('site-select').value;
+        const selectedModel = document.getElementById('model-select').value;
+
+        fetch(`/api/config/${siteName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ model: selectedModel })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                // Reload config panel to show updated configuration
+                // This assumes there's a function to reload the config partial
+                // For now, a simple page reload or manual update of DOM might be needed
+                location.reload(); // Simple reload for demonstration
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error saving model configuration:', error));
+    });
+</script>

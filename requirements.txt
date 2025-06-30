@@ -1,0 +1,16 @@
+Flask
+requests
+beautifulsoup4
+lxml
+python-dotenv
+google-auth
+google-generativeai
+google-api-python-client
+openai
+pytube
+youtube-transcript-api
+whisper; sys_platform != 'win32'  # optional: for YouTube transcription (Unix)
+pillow
+pdfplumber
+pytesseract
+APScheduler

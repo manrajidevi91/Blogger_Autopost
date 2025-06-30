@@ -1,0 +1,21 @@
+<!-- partials/sites.html -->
+<div class="site-cards-container">
+    {% for site_name, site_data in sites.items() %}
+    <div class="site-card">
+        <h3>{{ site_data.name }}</h3>
+        <p>Language: {{ site_data.language }}</p>
+        <button onclick="loadSiteDetail('{{ site_name }}')">View Details</button>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function loadSiteDetail(siteName) {
+    fetch(`/load/site/${siteName}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('site-detail-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading site detail:', error));
+}
+</script>

@@ -1,0 +1,40 @@
+<!-- partials/site_detail.html -->
+<h2>{{ site.name }} Details</h2>
+
+<h3>Upload New Template</h3>
+<form id="upload-template-form" enctype="multipart/form-data">
+    <input type="hidden" name="site_name" value="{{ site.name }}">
+    <input type="file" name="template_file" accept=".html">
+    <button type="submit">Upload Template</button>
+</form>
+
+<h3>Existing Templates</h3>
+<ul id="existing-templates-list">
+    {% for template in templates %}
+    <li>{{ template }}</li>
+    {% else %}
+    <li>No templates uploaded yet.</li>
+    {% endfor %}
+</ul>
+
+<script>
+    document.getElementById('upload-template-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('/api/upload_template', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                // Reload site detail to show new template
+                loadSiteDetail('{{ site.name }}');
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error uploading template:', error));
+    });
+</script>
