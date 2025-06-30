@@ -3,9 +3,12 @@ import os
 from utils.config import load_sites_data, save_sites_data, load_model_config, save_model_config
 from utils.sites import get_site_by_name, list_site_templates
 from utils.post_creator import create_post
-from utils.schedules import load_schedules_data, save_schedules_data
+from utils.schedules import (
+    load_schedules_data,
+    save_schedules_data,
+    register_jobs,
+)
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
 from utils.youtube_service import get_youtube_transcript
 from utils.pdf_image_service import extract_text_from_pdf, extract_text_from_image
 import shutil
@@ -15,35 +18,9 @@ app = Flask(__name__)
 # Initialize scheduler
 scheduler = BackgroundScheduler()
 
-# Load jobs from schedules.json and schedule them
+# Register existing jobs with the scheduler
 def load_jobs():
-    schedules = load_schedules_data()
-    for job_id, job in schedules.items():
-        run_time = datetime.fromisoformat(job['scheduled_time'])
-        args = [
-            job['site_name'],
-            job['content_source'],
-            job.get('ai_model'),
-            job.get('template'),
-            job.get('source_input'),
-        ]
-        if job.get('repeat'):
-            scheduler.add_job(
-                create_post,
-                'interval',
-                days=1,
-                start_date=run_time,
-                id=job_id,
-                args=args,
-            )
-        else:
-            scheduler.add_job(
-                create_post,
-                'date',
-                run_date=run_time,
-                id=job_id,
-                args=args,
-            )
+    register_jobs(scheduler)
 
 # Log each request method and path
 @app.before_request
