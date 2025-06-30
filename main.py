@@ -155,10 +155,16 @@ def api_schedules_id(schedule_id):
 @app.route('/load/config')
 def load_config():
     model_config = load_model_config()
+    sites = load_sites_data()
     # In a real application, you would fetch available models from external APIs (OpenRouter/Gemini/etc.)
     # For now, we'll use a dummy list
     available_models = ['ChatGPT', 'Gemini', 'OpenRouter_Model_A', 'OpenRouter_Model_B']
-    return render_template('partials/config.html', model_config=model_config, available_models=available_models)
+    return render_template(
+        'partials/config.html',
+        model_config=model_config,
+        sites=sites,
+        available_models=available_models,
+    )
 
 @app.route('/api/config/<site_name>', methods=['POST'])
 def api_config(site_name):

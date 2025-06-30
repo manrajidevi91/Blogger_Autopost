@@ -5,7 +5,7 @@
 <form id="model-config-form">
     <label for="site-select">Select Site:</label>
     <select id="site-select" name="site_name">
-        {% for site_name, site_data in model_config.items() %}
+        {% for site_name, site_data in sites.items() %}
         <option value="{{ site_name }}">{{ site_name }}</option>
         {% endfor %}
     </select>
