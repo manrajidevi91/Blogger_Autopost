@@ -1,10 +1,16 @@
 <!-- partials/sites.html -->
-<div class="site-cards-container">
+<div class="site-cards-container row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
     {% for site_name, site_data in sites.items() %}
-    <div class="site-card">
-        <h3>{{ site_data.name }}</h3>
-        <p>Language: {{ site_data.language }}</p>
-        <button onclick="loadSiteDetail('{{ site_name }}')">View Details</button>
+    <div class="col">
+        <div class="card h-100 site-card" onclick="loadSiteDetail('{{ site_name }}')" style="cursor:pointer;">
+            {% if site_data.logo %}
+            <img src="{{ site_data.logo }}" class="card-img-top" alt="{{ site_data.name }} logo">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ site_data.name }}</h5>
+                <p class="card-text">Language: {{ site_data.language }}</p>
+            </div>
+        </div>
     </div>
     {% endfor %}
 </div>
