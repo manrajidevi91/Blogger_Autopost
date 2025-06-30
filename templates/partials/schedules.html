@@ -1,19 +1,28 @@
 <!-- partials/schedules.html -->
+
 <h2>Scheduled Posts</h2>
 <div class="schedules-list">
     {% if schedules %}
         {% for schedule_id, schedule_data in schedules.items() %}
-        <div class="schedule-item">
-            <h3>Schedule ID: {{ schedule_id }}</h3>
-            <p>Site: {{ schedule_data.site_name }}</p>
-            <p>Source Type: {{ schedule_data.content_source }}</p>
-            <p>Input: {{ schedule_data.source_input }}</p>
-            <p>Scheduled Time: {{ schedule_data.scheduled_time }}</p>
-            <p>Repeat: {{ "Yes" if schedule_data.repeat else "No" }}</p>
-            <p>Model: {{ schedule_data.ai_model }}</p>
-            <p>Template: {{ schedule_data.template }}</p>
-            <button onclick="editSchedule('{{ schedule_id }}')">Edit</button>
-            <button onclick="deleteSchedule('{{ schedule_id }}')">Delete</button>
+        <div class="schedule-item mb-4 p-2 border rounded">
+            <h5 class="mb-1">Schedule ID: {{ schedule_id }}</h5>
+            <div><strong>Site:</strong> {{ schedule_data.site_name }}</div>
+            <div><strong>Source Type:</strong> {{ schedule_data.content_source }}</div>
+            <div><strong>Input Summary:</strong> {{ schedule_data.source_input }}</div>
+            <div><strong>Scheduled Time:</strong> {{ schedule_data.scheduled_time }}</div>
+            <div><strong>Repeat:</strong> {{ "Yes" if schedule_data.repeat else "No" }}</div>
+            <div><strong>AI Model:</strong> {{ schedule_data.ai_model }}</div>
+            <div><strong>Template:</strong>
+                {% if schedule_data.template is iterable and schedule_data.template is not string %}
+                    {{ schedule_data.template | join(', ') }}
+                {% else %}
+                    {{ schedule_data.template }}
+                {% endif %}
+            </div>
+            <div class="mt-2">
+                <button class="btn btn-sm btn-primary me-2" onclick="editSchedule('{{ schedule_id }}')">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteSchedule('{{ schedule_id }}')">Delete</button>
+            </div>
         </div>
         {% endfor %}
     {% else %}
@@ -22,9 +31,24 @@
 </div>
 
 <script>
+const schedulesData = {{ schedules | tojson }};
+
 function editSchedule(scheduleId) {
-    alert('Edit schedule ' + scheduleId + ' - functionality to be implemented.');
-    // TODO: Implement actual edit functionality (e.g., load a form with schedule data)
+    const current = schedulesData[scheduleId];
+    if (!current) return;
+    const newTime = prompt('Update scheduled time (YYYY-MM-DDTHH:MM)', current.scheduled_time);
+    if (newTime === null) return;
+    fetch(`/api/schedules/${scheduleId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...current, scheduled_time: newTime })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || data.error);
+        if (data.message) location.reload();
+    })
+    .catch(err => console.error('Error updating schedule:', err));
 }
 
 function deleteSchedule(scheduleId) {
