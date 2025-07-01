@@ -1,5 +1,8 @@
+import os
 import requests
 from bs4 import BeautifulSoup
+import openai
+import google.generativeai as genai
 
 def scrape_url_content(url):
     try:
@@ -15,8 +18,47 @@ def scrape_url_content(url):
         return None
 
 def generate_content_with_ai(text_input, ai_model):
-    # Placeholder for actual AI model integration
-    # In a real scenario, you would call the respective AI API (ChatGPT, Gemini, etc.)
-    print(f"Generating content with AI model {ai_model} for input: {text_input[:100]}...")
-    return f"AI generated content based on {text_input}"
+    """Generate content using the selected AI model."""
+
+    model = ai_model.lower()
+    if model == "chatgpt":
+        return generate_with_chatgpt(text_input)
+    if model == "gemini":
+        return generate_with_gemini(text_input)
+
+    return f"Unsupported AI model: {ai_model}"
+
+
+def generate_with_chatgpt(text: str) -> str:
+    """Generate text using the ChatGPT API."""
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return "OpenAI API key not configured."
+
+    try:
+        client = openai.OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": text}],
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as exc:  # noqa: BLE001
+        return f"Error calling ChatGPT API: {exc}"
+
+
+def generate_with_gemini(text: str) -> str:
+    """Generate text using the Google Gemini API."""
+
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        return "Google API key not configured."
+
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-pro")
+        response = model.generate_content(text)
+        return response.text
+    except Exception as exc:  # noqa: BLE001
+        return f"Error calling Gemini API: {exc}"
 
