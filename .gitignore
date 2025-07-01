@@ -46,3 +46,6 @@ run.bat
 setup.bat
 Folder_Creation.bat
 utils/__pycache__/*.pyc
+config/client_secret.json
+.gitignore
+config/token.pickle
