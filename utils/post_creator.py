@@ -1,19 +1,24 @@
 import os
+
 from utils.ai_engine import scrape_url_content, generate_content_with_ai
 from utils.youtube_service import get_youtube_transcript
 from utils.pdf_image_service import extract_text_from_pdf, extract_text_from_image
+from utils.config import load_sites_data
+from utils.blogger_client import publish_post
 
 def create_post(site_name, content_source, ai_model, template, source_input):
+    """Create and publish a post to Blogger for the specified site."""
+
     extracted_content = None
-    if content_source == 'url':
+    if content_source == "url":
         extracted_content = scrape_url_content(source_input)
-    elif content_source == 'youtube':
+    elif content_source == "youtube":
         # Assuming source_input is YouTube video ID or URL that can be parsed for ID
-        video_id = source_input.split('v=')[-1].split('&')[0] # Simple parsing
+        video_id = source_input.split("v=")[-1].split("&")[0]
         extracted_content = get_youtube_transcript(video_id)
-    elif content_source == 'pdf':
+    elif content_source == "pdf":
         extracted_content = extract_text_from_pdf(source_input)
-    elif content_source == 'image':
+    elif content_source == "image":
         extracted_content = extract_text_from_image(source_input)
     else:
         return {"status": "error", "message": "Unsupported content source"}
@@ -24,8 +29,46 @@ def create_post(site_name, content_source, ai_model, template, source_input):
     # Generate content using AI
     ai_generated_content = generate_content_with_ai(extracted_content, ai_model)
 
-    # Placeholder for applying template and posting to Blogger
-    final_post_content = f"<!-- Template: {template} -->\n{ai_generated_content}"
-    print(f"Final post content for Blogger:\n{final_post_content}")
+    # ------------------------------------------------------------------
+    # Load site configuration (blog_id and api_key)
+    sites = load_sites_data()
+    site_info = sites.get(site_name)
+    if not site_info:
+        return {"status": "error", "message": f"Site '{site_name}' not found"}
 
-    return {"status": "success", "message": "Post created successfully (Blogger API integration pending)", "content": final_post_content}
+    blog_id = site_info.get("blog_id")
+    api_key = site_info.get("api_key")
+    if not blog_id or not api_key:
+        return {
+            "status": "error",
+            "message": f"Missing blog_id or api_key for site '{site_name}'",
+        }
+
+    # ------------------------------------------------------------------
+    # Read template file
+    template_path = os.path.join("static", "templates", site_name, template)
+    if not os.path.exists(template_path):
+        return {
+            "status": "error",
+            "message": f"Template '{template}' not found for site '{site_name}'",
+        }
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        template_str = f.read()
+
+    # Insert AI generated content into template
+    if "{{content}}" in template_str:
+        final_post_content = template_str.replace("{{content}}", ai_generated_content)
+    else:
+        final_post_content = f"{template_str}\n{ai_generated_content}"
+
+    title = f"Automated Post - {site_name}"
+
+    # ------------------------------------------------------------------
+    # Publish to Blogger
+    publish_result = publish_post(blog_id, api_key, title, final_post_content)
+
+    # Combine result info with content for debugging
+    publish_result["content"] = final_post_content
+
+    return publish_result
