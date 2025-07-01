@@ -46,7 +46,6 @@ def api_sites():
             return jsonify({'error': 'Site name is required'}), 400
 
         blog_id = request.form.get('blog_id')
-        api_key = request.form.get('api_key')
         language = request.form.get('language')
 
         cred_dir = get_credentials_dir(site_name)
@@ -60,7 +59,6 @@ def api_sites():
 
         site_data = {
             'blog_id': blog_id,
-            'api_key': api_key,
             'language': language,
             'credential_path': cred_path,
         }
