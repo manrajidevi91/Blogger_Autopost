@@ -1,6 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 import os
-from utils.config import load_sites_data, save_sites_data, load_model_config, save_model_config
+from utils.config import (
+    load_sites_data,
+    save_sites_data,
+    load_model_config,
+    save_model_config,
+    get_credentials_dir,
+    save_client_secret,
+)
 from utils.sites import get_site_by_name, list_site_templates
 from utils.post_creator import create_post
 from utils.schedules import (
@@ -42,14 +49,14 @@ def api_sites():
         api_key = request.form.get('api_key')
         language = request.form.get('language')
 
+        cred_dir = get_credentials_dir(site_name)
+        os.makedirs(cred_dir, exist_ok=True)
+
         cred_path = None
         if 'client_secret' in request.files:
             file = request.files['client_secret']
             if file.filename:
-                cred_dir = os.path.join('config', site_name)
-                os.makedirs(cred_dir, exist_ok=True)
-                cred_path = os.path.join(cred_dir, 'client_secret.json')
-                file.save(cred_path)
+                cred_path = save_client_secret(site_name, file)
 
         site_data = {
             'blog_id': blog_id,
