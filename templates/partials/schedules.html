@@ -46,7 +46,7 @@ function editSchedule(scheduleId) {
     .then(res => res.json())
     .then(data => {
         alert(data.message || data.error);
-        if (data.message) location.reload();
+        if (data.message) loadPartial('schedules');
     })
     .catch(err => console.error('Error updating schedule:', err));
 }
@@ -60,10 +60,7 @@ function deleteSchedule(scheduleId) {
         .then(data => {
             if (data.message) {
                 alert(data.message);
-                // Reload schedules to reflect deletion
-                // This assumes there's a function to reload the schedules partial
-                // For now, a simple page reload or manual removal from DOM might be needed
-                location.reload(); // Simple reload for demonstration
+                loadPartial('schedules');
             } else {
                 alert('Error: ' + data.error);
             }

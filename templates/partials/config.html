@@ -120,10 +120,7 @@
         .then(data => {
             if (data.message) {
                 alert(data.message);
-                // Reload config panel to show updated configuration
-                // This assumes there's a function to reload the config partial
-                // For now, a simple page reload or manual update of DOM might be needed
-                location.reload(); // Simple reload for demonstration
+                loadPartial('config');
             } else {
                 alert('Error: ' + data.error);
             }

@@ -140,15 +140,33 @@ document.getElementById('schedule-source-type').addEventListener('change', e => 
 updateInput('source-input-container', document.getElementById('source-type').value);
 updateInput('schedule-source-input', document.getElementById('schedule-source-type').value);
 
-document.getElementById('post-now-form').addEventListener('submit', function(e) {
+document.getElementById('post-now-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const inputEl = document.querySelector('#source-input-container input');
+    let sourceInput = '';
+    if (inputEl.type === 'file') {
+        const file = inputEl.files[0];
+        if (!file) { alert('No file selected'); return; }
+        const formData = new FormData();
+        formData.append('file', file);
+        const ocrUrl = document.getElementById('source-type').value === 'pdf' ? '/api/ocr/pdf' : '/api/ocr/image';
+        try {
+            const ocrRes = await fetch(ocrUrl, { method: 'POST', body: formData });
+            const ocrData = await ocrRes.json();
+            if (!ocrRes.ok) { alert(ocrData.error || 'Failed to process file'); return; }
+            sourceInput = ocrData.content;
+        } catch (err) {
+            console.error(err); alert('Failed to process file'); return;
+        }
+    } else {
+        sourceInput = inputEl.value;
+    }
     const data = {
         site_name: document.getElementById('post-site-name').value,
         content_source: document.getElementById('source-type').value,
         ai_model: document.getElementById('ai-model').value,
         template: document.querySelector('input[name="template"]:checked')?.value,
-        source_input: inputEl.type === 'file' ? (inputEl.files[0] ? inputEl.files[0].name : '') : inputEl.value
+        source_input: sourceInput
     };
     fetch('/api/create_post', {
         method: 'POST',
@@ -179,7 +197,10 @@ document.getElementById('schedule-form').addEventListener('submit', function(e) 
         body: JSON.stringify(payload)
     })
     .then(r => r.json())
-    .then(d => alert(d.message || d.error))
+    .then(d => {
+        alert(d.message || d.error);
+        if (d.message) loadPartial('schedules');
+    })
     .catch(err => { console.error(err); alert('Failed to create schedule'); });
 });
 
