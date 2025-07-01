@@ -34,11 +34,29 @@ def index():
 @app.route('/api/sites', methods=['GET', 'POST'])
 def api_sites():
     if request.method == 'POST':
-        site_data = request.json
-        site_name = site_data.get('name')
-
+        site_name = request.form.get('name')
         if not site_name:
             return jsonify({'error': 'Site name is required'}), 400
+
+        blog_id = request.form.get('blog_id')
+        api_key = request.form.get('api_key')
+        language = request.form.get('language')
+
+        cred_path = None
+        if 'client_secret' in request.files:
+            file = request.files['client_secret']
+            if file.filename:
+                os.makedirs('config', exist_ok=True)
+                cred_path = os.path.join('config', f'{site_name}_client_secret.json')
+                file.save(cred_path)
+
+        site_data = {
+            'name': site_name,
+            'blog_id': blog_id,
+            'api_key': api_key,
+            'language': language,
+            'client_secret': cred_path,
+        }
 
         sites = load_sites_data()
         sites[site_name] = site_data

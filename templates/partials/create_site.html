@@ -7,11 +7,15 @@
     </div>
     <div class="mb-3">
         <label for="blogger-id" class="form-label">Blogger Blog ID</label>
-        <input type="text" class="form-control" id="blogger-id" readonly>
+        <input type="text" class="form-control" id="blogger-id">
     </div>
     <div class="mb-3">
         <label for="api-key" class="form-label">Blogger API Key</label>
         <input type="text" class="form-control" id="api-key" required>
+    </div>
+    <div class="mb-3">
+        <label for="client-secret" class="form-label">Client Secret</label>
+        <input type="file" class="form-control" id="client-secret" accept=".json">
     </div>
     <div class="mb-3">
         <label for="language" class="form-label">Language</label>
@@ -42,18 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('create-site-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const data = {
-        name: document.getElementById('site-name').value,
-        blog_id: document.getElementById('blogger-id').value,
-        api_key: document.getElementById('api-key').value,
-        language: document.getElementById('language').value
-    };
+
+    const formData = new FormData();
+    formData.append('name', document.getElementById('site-name').value);
+    formData.append('blog_id', document.getElementById('blogger-id').value);
+    formData.append('api_key', document.getElementById('api-key').value);
+    formData.append('language', document.getElementById('language').value);
+    const secretInput = document.getElementById('client-secret');
+    if (secretInput.files.length > 0) {
+        formData.append('client_secret', secretInput.files[0]);
+    }
+
     fetch('/api/sites', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+        body: formData
     })
     .then(async response => {
         const body = await response.json().catch(() => ({}));
