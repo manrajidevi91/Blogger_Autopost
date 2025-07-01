@@ -30,18 +30,18 @@ def create_post(site_name, content_source, ai_model, template, source_input):
     ai_generated_content = generate_content_with_ai(extracted_content, ai_model)
 
     # ------------------------------------------------------------------
-    # Load site configuration (blog_id and api_key)
+    # Load site configuration (blog_id and credential path)
     sites = load_sites_data()
     site_info = sites.get(site_name)
     if not site_info:
         return {"status": "error", "message": f"Site '{site_name}' not found"}
 
     blog_id = site_info.get("blog_id")
-    api_key = site_info.get("api_key")
-    if not blog_id or not api_key:
+    credential_path = site_info.get("credential_path")
+    if not blog_id or not credential_path:
         return {
             "status": "error",
-            "message": f"Missing blog_id or api_key for site '{site_name}'",
+            "message": f"Missing blog_id or credentials for site '{site_name}'",
         }
 
     # ------------------------------------------------------------------
@@ -66,7 +66,7 @@ def create_post(site_name, content_source, ai_model, template, source_input):
 
     # ------------------------------------------------------------------
     # Publish to Blogger
-    publish_result = publish_post(blog_id, api_key, title, final_post_content)
+    publish_result = publish_post(blog_id, credential_path, title, final_post_content)
 
     # Combine result info with content for debugging
     publish_result["content"] = final_post_content
