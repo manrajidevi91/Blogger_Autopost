@@ -46,16 +46,16 @@ def api_sites():
         if 'client_secret' in request.files:
             file = request.files['client_secret']
             if file.filename:
-                os.makedirs('config', exist_ok=True)
-                cred_path = os.path.join('config', f'{site_name}_client_secret.json')
+                cred_dir = os.path.join('config', site_name)
+                os.makedirs(cred_dir, exist_ok=True)
+                cred_path = os.path.join(cred_dir, 'client_secret.json')
                 file.save(cred_path)
 
         site_data = {
-            'name': site_name,
             'blog_id': blog_id,
             'api_key': api_key,
             'language': language,
-            'client_secret': cred_path,
+            'credential_path': cred_path,
         }
 
         sites = load_sites_data()
