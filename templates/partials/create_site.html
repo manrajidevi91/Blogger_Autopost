@@ -55,18 +55,14 @@ document.getElementById('create-site-form').addEventListener('submit', function(
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json().then(body => ({ status: response.status, body })))
-    .then(result => {
-        if (result.status === 201) {
+    .then(async response => {
+        const body = await response.json().catch(() => ({}));
+        if (response.status === 201) {
             this.reset();
             document.getElementById('blogger-id').value = generateBlogId();
-            if (typeof loadPartial === 'function') {
-                loadPartial('sites');
-            } else {
-                location.reload();
-            }
+            loadPartial('sites');
         } else {
-            alert(result.body.error || 'Error creating site');
+            alert(body.error || 'Error creating site');
         }
     })
     .catch(err => {
