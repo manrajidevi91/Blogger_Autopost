@@ -49,3 +49,4 @@ utils/__pycache__/*.pyc
 config/client_secret.json
 .gitignore
 config/token.pickle
+resolve_merge.bat
