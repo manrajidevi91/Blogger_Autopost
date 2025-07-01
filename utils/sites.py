@@ -32,4 +32,4 @@ def list_site_templates(site_name):
             ]
         except OSError:
             return []
-    return [] 
+    return []
