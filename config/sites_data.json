@@ -1,1 +1,9 @@
-{}
+{
+    "ITICareer.in": {
+        "name": "ITICareer.in",
+        "blog_id": "5284815992985674732",
+        "language": "en",
+        "credential_path": "config\\ITICareer.in\\client_secret.json",
+        "logo": "/static/logos/ITICareer.in.png"
+    }
+}
