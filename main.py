@@ -57,11 +57,24 @@ def api_sites():
             if file.filename:
                 cred_path = save_client_secret(site_name, file)
 
+        logo_url = None
+        if 'site_logo' in request.files:
+            logo_file = request.files['site_logo']
+            if logo_file.filename:
+                logos_dir = os.path.join('static', 'logos')
+                os.makedirs(logos_dir, exist_ok=True)
+                logo_path = os.path.join(logos_dir, f"{site_name}.png")
+                logo_file.save(logo_path)
+                logo_url = f"/static/logos/{site_name}.png"
+
         site_data = {
+            'name': site_name,
             'blog_id': blog_id,
             'language': language,
             'credential_path': cred_path,
         }
+        if logo_url:
+            site_data['logo'] = logo_url
 
         sites = load_sites_data()
         sites[site_name] = site_data
