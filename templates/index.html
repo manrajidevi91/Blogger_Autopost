@@ -81,10 +81,10 @@
   <div id="main">
     <div id="sidebar">
       <div class="list-group">
-        <a class="list-group-item" onclick="loadPartial('sites')">📄 Sites List</a>
-        <a class="list-group-item" onclick="loadPartial('create_site')">➕ Create Site</a>
-        <a class="list-group-item" onclick="loadPartial('schedules')">📅 Schedules</a>
-        <a class="list-group-item" onclick="loadPartial('config')">⚙️ Configuration</a>
+        <a class="list-group-item" href="/sites" onclick="event.preventDefault(); loadPartial('sites')">📄 Sites List</a>
+        <a class="list-group-item" href="/create_site" onclick="event.preventDefault(); loadPartial('create_site')">➕ Create Site</a>
+        <a class="list-group-item" href="/schedules" onclick="event.preventDefault(); loadPartial('schedules')">📅 Schedules</a>
+        <a class="list-group-item" href="/config" onclick="event.preventDefault(); loadPartial('config')">⚙️ Configuration</a>
       </div>
     </div>
     <div class="flex-grow-1" style="width:100%;">
@@ -99,6 +99,13 @@
             'create_site': '/load/create_site',
             'schedules': '/load/schedules',
             'config': '/load/config'
+        };
+
+        const routeMap = {
+            'sites': '/sites',
+            'create_site': '/create_site',
+            'schedules': '/schedules',
+            'config': '/config'
         };
 
         const initialSiteName = "{{ initial_site_name or '' }}";
@@ -126,6 +133,7 @@
                         document.body.appendChild(newScript);
                         oldScript.remove();
                     });
+                    history.pushState(null, '', routeMap[name]);
                 })
                 .catch(err => console.error('Error loading partial:', err));
         }
@@ -150,18 +158,33 @@
                         document.body.appendChild(newScript);
                         oldScript.remove();
                     });
-                    history.pushState(null, '', `/${encodeURIComponent(siteName)}`);
+                    history.pushState(null, '', `/sites/${encodeURIComponent(siteName)}`);
                 })
                 .catch(error => console.error('Error loading site detail:', error));
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (initialSiteName) {
+        function handleRoute() {
+            const path = window.location.pathname;
+            if (path.startsWith('/sites/') && path.split('/').length > 2) {
+                const siteName = decodeURIComponent(path.split('/')[2]);
+                loadSiteDetail(siteName);
+            } else if (path === '/sites') {
+                loadPartial('sites');
+            } else if (path === '/create_site') {
+                loadPartial('create_site');
+            } else if (path === '/schedules') {
+                loadPartial('schedules');
+            } else if (path === '/config') {
+                loadPartial('config');
+            } else if (initialSiteName) {
                 loadSiteDetail(initialSiteName);
             } else {
                 loadPartial('sites');
             }
-        });
+        }
+
+        window.addEventListener('popstate', handleRoute);
+        document.addEventListener('DOMContentLoaded', handleRoute);
     </script>
 </body>
 </html>

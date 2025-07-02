@@ -63,7 +63,7 @@
 
 <div class="site-cards-container">
   {% for site_name, site_data in sites.items() %}
-    <div class="site-card" onclick="loadSiteDetail('{{ site_name }}')">
+    <a class="site-card" href="/sites/{{ site_name }}" onclick="event.preventDefault(); loadSiteDetail('{{ site_name }}')">
       {% if site_data.logo %}
         <img src="{{ site_data.logo }}" alt="{{ site_data.name or site_name }} logo">
       {% else %}
@@ -73,7 +73,7 @@
         <div class="card-title">{{ site_data.name or site_name }}</div>
         <div class="card-text">Language: {{ site_data.language }}</div>
       </div>
-    </div>
+    </a>
   {% endfor %}
 </div>
 
