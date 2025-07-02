@@ -1,106 +1,122 @@
 <!-- partials/config.html -->
 <style>
-    /* Basic styling for the configuration panel */
-    .config-panel {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        background-color: #f4f4f4;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
-        margin: 20px auto;
-    }
+  .config-panel {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 700px;
+    margin: 40px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    color: #333;
+  }
 
-    .config-panel h2, .config-panel h3 {
-        color: #333;
-        margin-bottom: 15px;
-    }
+  .config-panel h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    border-left: 5px solid #007acc;
+    padding-left: 10px;
+  }
 
-    .config-panel form {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-    }
+  .config-panel h3 {
+    font-size: 18px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #007acc;
+  }
 
-    .config-panel label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-        color: #555;
-    }
+  .config-panel label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+  }
 
-    .config-panel select, .config-panel button {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box; /* Ensure padding doesn't increase width */
-    }
+  .config-panel select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    background-color: #fdfdfd;
+    transition: border-color 0.2s;
+  }
 
-    .config-panel button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.2s ease-in-out;
-    }
+  .config-panel select:focus {
+    border-color: #007acc;
+    outline: none;
+  }
 
-    .config-panel button:hover {
-        background-color: #0056b3;
-    }
+  .config-panel button {
+    background-color: #007acc;
+    color: #fff;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+  }
 
-    #current-model-config ul {
-        list-style: none;
-        padding: 0;
-    }
+  .config-panel button:hover {
+    background-color: #005fa3;
+  }
 
-    #current-model-config li {
-        background-color: #e9ecef;
-        padding: 10px 15px;
-        margin-bottom: 8px;
-        border-radius: 4px;
-        border: 1px solid #dee2e6;
-    }
+  #current-model-config ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+  }
 
-    #current-model-config li strong {
-        color: #007bff;
-    }
+  #current-model-config li {
+    background: #f5f7fa;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 4px solid #007acc;
+    color: #444;
+    font-size: 15px;
+  }
+
+  #current-model-config li strong {
+    color: #007acc;
+  }
 </style>
-<div class="config-panel">
-    <h2>Configuration Panel</h2>
 
-<h3>AI Model Configuration</h3>
-<form id="model-config-form">
+<div class="config-panel">
+  <h2>Configuration Panel</h2>
+
+  <h3>AI Model Configuration</h3>
+  <form id="model-config-form">
     <label for="site-select">Select Site:</label>
     <select id="site-select" name="site_name">
-        {% for site_name, site_data in sites.items() %}
-        <option value="{{ site_name }}">{{ site_name }}</option>
-        {% endfor %}
+      {% for site_name, site_data in sites.items() %}
+      <option value="{{ site_name }}">{{ site_name }}</option>
+      {% endfor %}
     </select>
 
     <label for="model-select">Select AI Model:</label>
     <select id="model-select" name="model">
-        {% for model in available_models %}
-        <option value="{{ model }}">{{ model }}</option>
-        {% endfor %}
+      {% for model in available_models %}
+      <option value="{{ model }}">{{ model }}</option>
+      {% endfor %}
     </select>
 
     <button type="submit">Save Configuration</button>
-</form>
+  </form>
 
-<div id="current-model-config">
+  <div id="current-model-config">
     <h3>Current Model Configurations:</h3>
     <ul>
-        {% for site_name, config in model_config.items() %}
-        <li><strong>{{ site_name }}:</strong> {{ config.model }}</li>
-        {% else %}
-        <li>No model configurations saved yet.</li>
-        {% endfor %}
+      {% for site_name, config in model_config.items() %}
+      <li><strong>{{ site_name }}:</strong> {{ config.model }}</li>
+      {% else %}
+      <li>No model configurations saved yet.</li>
+      {% endfor %}
     </ul>
+  </div>
 </div>
 
 <script>

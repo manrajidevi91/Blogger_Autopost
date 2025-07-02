@@ -1,39 +1,101 @@
 <!-- partials/create_site.html -->
-<h2>Create New Site</h2>
-<form id="create-site-form">
-    <div class="mb-3">
-        <label for="site-name" class="form-label">Site Name</label>
-        <input type="text" class="form-control" id="site-name" required>
-    </div>
-    <div class="mb-3">
-        <label for="blogger-id" class="form-label">Blogger Blog ID</label>
-        <input type="text" class="form-control" id="blogger-id">
-    </div>
-    <div class="mb-3">
-        <label for="client-secret" class="form-label">Client Secret</label>
-        <input type="file" class="form-control" id="client-secret" accept=".json">
-    </div>
-    <div class="mb-3">
-        <label for="site-logo" class="form-label">Site Logo</label>
-        <input type="file" class="form-control" id="site-logo" accept="image/*">
-    </div>
-    <div class="mb-3">
-        <label for="language" class="form-label">Language</label>
-        <select id="language" class="form-select">
-            <option value="en" selected>English</option>
-            <option value="hi">Hindi</option>
-            <option value="bn">Bengali</option>
-            <option value="ta">Tamil</option>
-            <option value="te">Telugu</option>
-            <option value="kn">Kannada</option>
-            <option value="ml">Malayalam</option>
-            <option value="mr">Marathi</option>
-            <option value="gu">Gujarati</option>
-            <option value="pa">Punjabi</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Create Site</button>
-</form>
+<style>
+  .create-site-panel {
+    font-family: "Segoe UI", sans-serif;
+    background: #ffffff;
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+
+  .create-site-panel h2 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    border-left: 5px solid #007acc;
+    padding-left: 10px;
+  }
+
+  .create-site-panel label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .create-site-panel input,
+  .create-site-panel select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    background: #fdfdfd;
+  }
+
+  .create-site-panel input[type="file"] {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .create-site-panel input:focus,
+  .create-site-panel select:focus {
+    border-color: #007acc;
+    outline: none;
+  }
+
+  .create-site-panel button {
+    background-color: #007acc;
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+  }
+
+  .create-site-panel button:hover {
+    background-color: #005fa3;
+  }
+</style>
+
+<div class="create-site-panel">
+  <h2>Create New Site</h2>
+  <form id="create-site-form">
+    <label for="site-name">Site Name</label>
+    <input type="text" id="site-name" required>
+
+    <label for="blogger-id">Blogger Blog ID</label>
+    <input type="text" id="blogger-id" readonly>
+
+    <label for="client-secret">Client Secret (.json)</label>
+    <input type="file" id="client-secret" accept=".json">
+
+    <label for="site-logo">Site Logo (Image)</label>
+    <input type="file" id="site-logo" accept="image/*">
+
+    <label for="language">Language</label>
+    <select id="language">
+      <option value="en" selected>English</option>
+      <option value="hi">Hindi</option>
+      <option value="bn">Bengali</option>
+      <option value="ta">Tamil</option>
+      <option value="te">Telugu</option>
+      <option value="kn">Kannada</option>
+      <option value="ml">Malayalam</option>
+      <option value="mr">Marathi</option>
+      <option value="gu">Gujarati</option>
+      <option value="pa">Punjabi</option>
+    </select>
+
+    <button type="submit">Create Site</button>
+  </form>
+</div>
 
 <script>
 function generateBlogId() {

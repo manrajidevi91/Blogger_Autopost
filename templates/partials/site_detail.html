@@ -1,120 +1,248 @@
 <!-- partials/site_detail.html -->
-<h2>{{ site.name }} Management</h2>
-<div class="mb-3">
+<style>
+  .site-panel {
+    font-family: "Segoe UI", sans-serif;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  }
+
+  .site-panel h2 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    border-left: 5px solid #007acc;
+    padding-left: 10px;
+  }
+
+  .site-panel h3 {
+    font-size: 20px;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    color: #007acc;
+  }
+
+  .site-panel .mb-3 {
+    margin-bottom: 20px;
+  }
+
+  .site-panel label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+  }
+
+  .site-panel input[type="text"],
+  .site-panel input[type="datetime-local"],
+  .site-panel select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fdfdfd;
+  }
+
+  .site-panel input[type="file"] {
+    margin-top: 10px;
+  }
+
+  .site-panel input[type="checkbox"],
+  .site-panel input[type="radio"] {
+    margin-right: 8px;
+  }
+
+  .site-panel .form-check {
+    margin: 10px;
+    text-align: center;
+  }
+
+  .site-panel iframe {
+    width: 120px;
+    height: 80px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 5px;
+  }
+
+  .template-container,
+  .schedule-template-container,
+  #existing-templates-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 10px;
+  }
+
+  .site-panel button {
+    background-color: #007acc;
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .site-panel button:hover {
+    background-color: #005fa3;
+  }
+
+  .site-panel hr {
+    border: none;
+    height: 1px;
+    background: #ddd;
+    margin: 40px 0 30px;
+  }
+
+  .form-check-label {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+</style>
+
+<div class="site-panel">
+  <h2>{{ site.name }} Management</h2>
+  <div class="mb-3">
     <strong>Language:</strong> {{ site.language }}<br>
     <strong>Blog ID:</strong> {{ site.blog_id }}
-</div>
+  </div>
 
-<h3>Create Post</h3>
-<form id="post-now-form">
+  <h3>Create Post</h3>
+  <form id="post-now-form">
     <input type="hidden" id="post-site-name" value="{{ site.name }}">
+
     <div class="mb-3">
-        <label for="source-type" class="form-label">Source Type</label>
-        <select id="source-type" class="form-select">
-            <option value="url">URL</option>
-            <option value="youtube">YouTube</option>
-            <option value="pdf">PDF</option>
-            <option value="image">Image</option>
-        </select>
+      <label for="source-type">Source Type</label>
+      <select id="source-type">
+        <option value="url">URL</option>
+        <option value="youtube">YouTube</option>
+        <option value="pdf">PDF</option>
+        <option value="image">Image</option>
+      </select>
     </div>
+
     <div id="source-input-container" class="mb-3"></div>
-    <div class="mb-3">
-        <label for="ai-model" class="form-label">AI Model</label>
-        <select id="ai-model" class="form-select">
-            <option value="ChatGPT">ChatGPT</option>
-            <option value="Gemini">Gemini</option>
-            <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
-            <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Template</label>
-        <div id="template-radio-group" class="d-flex flex-wrap gap-3">
-            {% for template in templates %}
-            <div class="form-check text-center">
-                <input class="form-check-input" type="radio" name="template" id="template{{ loop.index }}" value="{{ template }}" {% if loop.first %}checked{% endif %}>
-                <label class="form-check-label" for="template{{ loop.index }}">
-                    <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}" style="width:120px;height:80px;border:1px solid #ccc;"></iframe>
-                    <div>{{ template }}</div>
-                </label>
-            </div>
-            {% else %}
-            <p>No templates uploaded yet.</p>
-            {% endfor %}
-        </div>
-    </div>
-    <button type="submit" class="btn btn-success">Post Now</button>
-</form>
 
-<hr>
-<h3>Schedule Post</h3>
-<form id="schedule-form">
+    <div class="mb-3">
+      <label for="ai-model">AI Model</label>
+      <select id="ai-model">
+        <option value="ChatGPT">ChatGPT</option>
+        <option value="Gemini">Gemini</option>
+        <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
+        <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label>Template</label>
+      <div class="template-container">
+        {% for template in templates %}
+        <div class="form-check">
+          <input type="radio" name="template" id="template{{ loop.index }}" value="{{ template }}" {% if loop.first %}checked{% endif %}>
+          <label class="form-check-label" for="template{{ loop.index }}">
+            <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
+            <div>{{ template }}</div>
+          </label>
+        </div>
+        {% else %}
+        <p>No templates uploaded yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit">Post Now</button>
+  </form>
+
+  <hr>
+
+  <h3>Schedule Post</h3>
+  <form id="schedule-form">
     <input type="hidden" id="schedule-site-name" value="{{ site.name }}">
-    <div class="mb-3">
-        <label for="schedule-source-type" class="form-label">Source Type</label>
-        <select id="schedule-source-type" class="form-select">
-            <option value="url">URL</option>
-            <option value="youtube">YouTube</option>
-            <option value="pdf">PDF</option>
-            <option value="image">Image</option>
-        </select>
-    </div>
-    <div id="schedule-source-input" class="mb-3"></div>
-    <div class="mb-3">
-        <label for="schedule-ai-model" class="form-label">AI Model</label>
-        <select id="schedule-ai-model" class="form-select">
-            <option value="ChatGPT">ChatGPT</option>
-            <option value="Gemini">Gemini</option>
-            <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
-            <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Templates</label>
-        <div id="schedule-templates" class="d-flex flex-wrap gap-3">
-            {% for template in templates %}
-            <div class="form-check text-center">
-                <input class="form-check-input" type="checkbox" name="templates" id="schedule-template{{ loop.index }}" value="{{ template }}">
-                <label class="form-check-label" for="schedule-template{{ loop.index }}">
-                    <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}" style="width:120px;height:80px;border:1px solid #ccc;"></iframe>
-                    <div>{{ template }}</div>
-                </label>
-            </div>
-            {% else %}
-            <p>No templates uploaded yet.</p>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="mb-3">
-        <label for="scheduled-time" class="form-label">Date &amp; Time</label>
-        <input type="datetime-local" id="scheduled-time" class="form-control" required>
-    </div>
-    <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="repeat-checkbox">
-        <label class="form-check-label" for="repeat-checkbox">Repeat</label>
-    </div>
-    <button type="submit" class="btn btn-primary">Create Schedule</button>
-</form>
 
-<hr>
-<h3>Upload New Template</h3>
-<form id="upload-template-form" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label for="schedule-source-type">Source Type</label>
+      <select id="schedule-source-type">
+        <option value="url">URL</option>
+        <option value="youtube">YouTube</option>
+        <option value="pdf">PDF</option>
+        <option value="image">Image</option>
+      </select>
+    </div>
+
+    <div id="schedule-source-input" class="mb-3"></div>
+
+    <div class="mb-3">
+      <label for="schedule-ai-model">AI Model</label>
+      <select id="schedule-ai-model">
+        <option value="ChatGPT">ChatGPT</option>
+        <option value="Gemini">Gemini</option>
+        <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
+        <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label>Templates</label>
+      <div class="schedule-template-container">
+        {% for template in templates %}
+        <div class="form-check">
+          <input type="checkbox" name="templates" id="schedule-template{{ loop.index }}" value="{{ template }}">
+          <label class="form-check-label" for="schedule-template{{ loop.index }}">
+            <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
+            <div>{{ template }}</div>
+          </label>
+        </div>
+        {% else %}
+        <p>No templates uploaded yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="scheduled-time">Date &amp; Time</label>
+      <input type="datetime-local" id="scheduled-time" required>
+    </div>
+
+    <div class="form-check mb-3">
+      <input type="checkbox" id="repeat-checkbox">
+      <label for="repeat-checkbox">Repeat</label>
+    </div>
+
+    <button type="submit">Create Schedule</button>
+  </form>
+
+  <hr>
+
+  <h3>Upload New Template</h3>
+  <form id="upload-template-form" enctype="multipart/form-data">
     <input type="hidden" name="site_name" value="{{ site.name }}">
     <input type="file" name="template_file" accept=".html">
     <button type="submit">Upload Template</button>
-</form>
+  </form>
 
-<h3>Existing Templates</h3>
-<div id="existing-templates-list" class="d-flex flex-wrap gap-3">
+  <h3>Existing Templates</h3>
+  <div id="existing-templates-list">
     {% for template in templates %}
     <div class="text-center">
-        <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}" style="width:120px;height:80px;border:1px solid #ccc;"></iframe>
-        <div>{{ template }}</div>
+      <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
+      <div>{{ template }}</div>
     </div>
     {% else %}
     <p>No templates uploaded yet.</p>
     {% endfor %}
+  </div>
 </div>
+
 
 <script>
 function updateInput(containerId, type) {

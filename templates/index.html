@@ -1,39 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blogger Autopost Bot</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {display:flex; flex-direction:column; min-height:100vh;}
-        #main {flex:1 1 auto; display:flex;}
-        #sidebar {width:200px;}
-        #content {flex-grow:1; padding:1rem;}
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blogger Autopost Bot</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f4f6f8;
+    }
+
+    nav {
+      background: #e3e3e3;
+      padding: 15px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    nav .navbar-brand {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    #main {
+      flex: 1 1 auto;
+      display: flex;
+    }
+
+    #sidebar {
+      width: 220px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
+    }
+
+    .list-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .list-group-item {
+      padding: 12px 20px;
+      color: #ecf0f1;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+
+    .list-group-item:hover {
+      background: #34495e;
+    }
+
+    #content, #site-detail-container {
+      padding: 20px;
+      flex-grow: 1;
+      background: #ffffff;
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">Blogger Autopost Bot</span>
-        </div>
-    </nav>
-    <div id="main">
-        <div id="sidebar" class="bg-light border-end">
-            <div class="list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('sites')">Sites List</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('create_site')">Create Site</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('schedules')">Schedules</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('config')">Configuration</a>
-            </div>
-        </div>
-        <div class="flex-grow-1">
-            <div id="content"></div>
-            <div id="site-detail-container" class="p-3"></div>
-        </div>
+  <nav>
+    <span class="navbar-brand">Blogger Autopost Bot</span>
+  </nav>
+
+  <div id="main">
+    <div id="sidebar">
+      <div class="list-group">
+        <a class="list-group-item" onclick="loadPartial('sites')">📄 Sites List</a>
+        <a class="list-group-item" onclick="loadPartial('create_site')">➕ Create Site</a>
+        <a class="list-group-item" onclick="loadPartial('schedules')">📅 Schedules</a>
+        <a class="list-group-item" onclick="loadPartial('config')">⚙️ Configuration</a>
+      </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <div class="flex-grow-1" style="width:100%;">
+      <div id="content"></div>
+      <div id="site-detail-container" class="p-3"></div>
+    </div>
+  </div>
+
+<script>
         const urlMap = {
             'sites': '/load/sites',
             'create_site': '/load/create_site',

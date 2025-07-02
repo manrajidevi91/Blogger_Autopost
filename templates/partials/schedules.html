@@ -1,33 +1,118 @@
 <!-- partials/schedules.html -->
 
-<h2>Scheduled Posts</h2>
-<div class="schedules-list">
+<style>
+  .schedules-container {
+    font-family: "Segoe UI", sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+  }
+
+  .schedules-container h2 {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    border-left: 5px solid #007acc;
+    padding-left: 10px;
+  }
+
+  .schedule-item {
+    background-color: #f7f9fc;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #007acc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .schedule-item h5 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .schedule-item div {
+    margin-bottom: 6px;
+    font-size: 15px;
+    color: #555;
+  }
+
+  .schedule-item strong {
+    color: #000;
+  }
+
+  .schedule-item .action-buttons {
+    margin-top: 12px;
+  }
+
+  .schedule-item button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .schedule-item button:first-of-type {
+    background-color: #007acc;
+    color: white;
+  }
+
+  .schedule-item button:first-of-type:hover {
+    background-color: #005fa3;
+  }
+
+  .schedule-item button:last-of-type {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  .schedule-item button:last-of-type:hover {
+    background-color: #c0392b;
+  }
+
+  .no-schedules {
+    font-style: italic;
+    color: #777;
+    text-align: center;
+    padding: 40px 0;
+  }
+</style>
+
+<div class="schedules-container">
+  <h2>Scheduled Posts</h2>
+  <div class="schedules-list">
     {% if schedules %}
-        {% for schedule_id, schedule_data in schedules.items() %}
-        <div class="schedule-item mb-4 p-2 border rounded">
-            <h5 class="mb-1">Schedule ID: {{ schedule_id }}</h5>
-            <div><strong>Site:</strong> {{ schedule_data.site_name }}</div>
-            <div><strong>Source Type:</strong> {{ schedule_data.content_source }}</div>
-            <div><strong>Input Summary:</strong> {{ schedule_data.source_input }}</div>
-            <div><strong>Scheduled Time:</strong> {{ schedule_data.scheduled_time }}</div>
-            <div><strong>Repeat:</strong> {{ "Yes" if schedule_data.repeat else "No" }}</div>
-            <div><strong>AI Model:</strong> {{ schedule_data.ai_model }}</div>
-            <div><strong>Template:</strong>
-                {% if schedule_data.template is iterable and schedule_data.template is not string %}
-                    {{ schedule_data.template | join(', ') }}
-                {% else %}
-                    {{ schedule_data.template }}
-                {% endif %}
-            </div>
-            <div class="mt-2">
-                <button class="btn btn-sm btn-primary me-2" onclick="editSchedule('{{ schedule_id }}')">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteSchedule('{{ schedule_id }}')">Delete</button>
-            </div>
+      {% for schedule_id, schedule_data in schedules.items() %}
+        <div class="schedule-item">
+          <h5>Schedule ID: {{ schedule_id }}</h5>
+          <div><strong>Site:</strong> {{ schedule_data.site_name }}</div>
+          <div><strong>Source Type:</strong> {{ schedule_data.content_source }}</div>
+          <div><strong>Input Summary:</strong> {{ schedule_data.source_input }}</div>
+          <div><strong>Scheduled Time:</strong> {{ schedule_data.scheduled_time }}</div>
+          <div><strong>Repeat:</strong> {{ "Yes" if schedule_data.repeat else "No" }}</div>
+          <div><strong>AI Model:</strong> {{ schedule_data.ai_model }}</div>
+          <div><strong>Template:</strong>
+            {% if schedule_data.template is iterable and schedule_data.template is not string %}
+              {{ schedule_data.template | join(', ') }}
+            {% else %}
+              {{ schedule_data.template }}
+            {% endif %}
+          </div>
+          <div class="action-buttons">
+            <button onclick="editSchedule('{{ schedule_id }}')">Edit</button>
+            <button onclick="deleteSchedule('{{ schedule_id }}')">Delete</button>
+          </div>
         </div>
-        {% endfor %}
+      {% endfor %}
     {% else %}
-        <p>No schedules found.</p>
+      <p class="no-schedules">No schedules found.</p>
     {% endif %}
+  </div>
 </div>
 
 <script>
