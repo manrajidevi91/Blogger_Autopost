@@ -29,7 +29,7 @@ project-root/
 ├── main.py                        # Main Flask app
 ├── config/
 │   ├── sites_data.json            # Saved site details
-│   └── model_config.json          # AI model per site
+│   └── ai_config.json             # Global AI provider configuration
 ├── static/
 │   └── logos/                     # Uploaded site logos
 ├── templates_repo/
@@ -128,12 +128,12 @@ When a site is clicked:
 
 ---
 
-## ⚙️ AI Model Configuration (`config.html`)
+## ⚙️ AI Provider Configuration (`config.html`)
 
 - URL: `/load/config`
-- On load: fetches AI model list (from OpenRouter/Gemini/static)
-- POST to `/api/config/<site_name>` with model selection
-- Updates `model_config.json`
+- Select provider and API key
+- POST to `/api/config`
+- Updates `ai_config.json`
 
 ---
 
@@ -170,7 +170,7 @@ When a site is clicked:
 | ------------------------------ | ---------- | -------------------------- |
 | `/api/sites`                   | GET/POST   | Add or list Blogger sites  |
 | `/api/sites/<site_name>`       | PUT/DELETE | Edit/delete site           |
-| `/api/config/<site_name>`      | GET/POST   | Model config per site      |
+| `/api/config`                  | POST       | Save AI provider config    |
 | `/api/create_post`             | POST       | Manually create post       |
 | `/api/schedules`               | GET/POST   | Add/list schedules         |
 | `/api/schedules/<id>`          | PUT/DELETE | Edit/delete schedule       |

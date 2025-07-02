@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import openai
 import google.generativeai as genai
+from utils.config import load_ai_config
 
 def scrape_url_content(url):
     try:
@@ -34,6 +35,10 @@ def generate_with_chatgpt(text: str) -> str:
 
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
+        cfg = load_ai_config()
+        if cfg.get("provider", "").lower() == "openai":
+            api_key = cfg.get("api_key")
+    if not api_key:
         return "OpenAI API key not configured."
 
     try:
@@ -51,6 +56,10 @@ def generate_with_gemini(text: str) -> str:
     """Generate text using the Google Gemini API."""
 
     api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        cfg = load_ai_config()
+        if cfg.get("provider", "").lower() == "gemini":
+            api_key = cfg.get("api_key")
     if not api_key:
         return "Google API key not configured."
 
