@@ -43,6 +43,7 @@ def index():
 @app.route('/create_site')
 @app.route('/schedules')
 @app.route('/config')
+@app.route('/templates')
 def spa_routes():
     """Serve the SPA entry point for top-level pages."""
     return render_template('index.html', initial_site_name=None)
@@ -53,6 +54,12 @@ def site_page(site_name):
     if not get_site_by_name(site_name):
         return render_template('index.html', initial_site_name=None), 404
     return render_template('index.html', initial_site_name=site_name)
+
+@app.route('/templates/<site_name>')
+def templates_page(site_name):
+    if not get_site_by_name(site_name):
+        return render_template('index.html', initial_site_name=None), 404
+    return render_template('index.html', initial_site_name=None)
 
 @app.route('/api/sites', methods=['GET', 'POST'])
 def api_sites():
@@ -142,6 +149,17 @@ def load_sites():
 @app.route('/load/create_site')
 def load_create_site():
     return render_template('partials/create_site.html')
+
+@app.route('/load/templates')
+def load_templates():
+    sites = load_sites_data()
+    return render_template('partials/templates.html', sites=sites)
+
+@app.route('/load/templates/<site_name>')
+def load_site_templates(site_name):
+    site = get_site_by_name(site_name)
+    templates = list_site_templates(site_name)
+    return render_template('partials/site_templates.html', site=site, templates=templates)
 
 @app.route('/api/create_post', methods=['POST'])
 def api_create_post():
