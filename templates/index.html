@@ -101,7 +101,7 @@
             'config': '/load/config'
         };
 
-        const initialSiteName = "{{ initial_site_name | default('') }}";
+        const initialSiteName = "{{ initial_site_name or '' }}";
 
         function loadPartial(name) {
             const url = urlMap[name];
