@@ -4,35 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blogger Autopost Bot</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {display:flex; flex-direction:column; min-height:100vh;}
-        #main {flex:1 1 auto; display:flex;}
-        #sidebar {width:200px;}
-        #content {flex-grow:1; padding:1rem;}
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #header {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #header .brand {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        #main {
+            flex: 1 1 auto;
+            display: flex;
+        }
+
+        #sidebar {
+            width: 200px;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+        }
+
+        #sidebar .nav-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #000;
+            text-decoration: none;
+        }
+
+        #sidebar .nav-link:hover {
+            background: #e9ecef;
+        }
+
+        #content-area {
+            flex-grow: 1;
+            display: block;
+        }
+
+        #content {
+            flex-grow: 1;
+            padding: 1rem;
+        }
+
+        #site-detail-container {
+            padding: 1rem;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">Blogger Autopost Bot</span>
+    <nav id="header">
+        <div class="header-inner">
+            <span class="brand">Blogger Autopost Bot</span>
         </div>
     </nav>
     <div id="main">
-        <div id="sidebar" class="bg-light border-end">
-            <div class="list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('sites')">Sites List</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('create_site')">Create Site</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('schedules')">Schedules</a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadPartial('config')">Configuration</a>
+        <div id="sidebar">
+            <div class="nav-list">
+                <a href="#" class="nav-link" onclick="loadPartial('sites')">Sites List</a>
+                <a href="#" class="nav-link" onclick="loadPartial('create_site')">Create Site</a>
+                <a href="#" class="nav-link" onclick="loadPartial('schedules')">Schedules</a>
+                <a href="#" class="nav-link" onclick="loadPartial('config')">Configuration</a>
             </div>
         </div>
-        <div class="flex-grow-1">
+        <div id="content-area">
             <div id="content"></div>
-            <div id="site-detail-container" class="p-3"></div>
+            <div id="site-detail-container"></div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const urlMap = {
             'sites': '/load/sites',
