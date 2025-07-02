@@ -36,7 +36,14 @@ def log_request_info():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', initial_site_name=None)
+
+
+@app.route('/<site_name>')
+def site_page(site_name):
+    if not get_site_by_name(site_name):
+        return render_template('index.html', initial_site_name=None), 404
+    return render_template('index.html', initial_site_name=site_name)
 
 @app.route('/api/sites', methods=['GET', 'POST'])
 def api_sites():
