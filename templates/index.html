@@ -40,6 +40,9 @@
             'schedules': '/load/schedules',
             'config': '/load/config'
         };
+
+        const initialSiteName = "{{ initial_site_name | default('') }}";
+
         function loadPartial(name) {
             const url = urlMap[name];
             if (!url) return;
@@ -47,6 +50,10 @@
                 .then(response => response.text())
                 .then(html => {
                     const container = document.getElementById('content');
+                    const detail = document.getElementById('site-detail-container');
+                    container.style.display = 'block';
+                    detail.style.display = 'none';
+                    detail.innerHTML = '';
                     container.innerHTML = html;
                     const scripts = container.querySelectorAll('script');
                     scripts.forEach(oldScript => {
@@ -62,8 +69,38 @@
                 })
                 .catch(err => console.error('Error loading partial:', err));
         }
+
+        function loadSiteDetail(siteName) {
+            fetch(`/load/site/${encodeURIComponent(siteName)}`)
+                .then(response => response.text())
+                .then(html => {
+                    const detail = document.getElementById('site-detail-container');
+                    const container = document.getElementById('content');
+                    container.style.display = 'none';
+                    detail.style.display = 'block';
+                    detail.innerHTML = html;
+                    const scripts = detail.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                        } else {
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                        oldScript.remove();
+                    });
+                    history.pushState(null, '', `/${encodeURIComponent(siteName)}`);
+                })
+                .catch(error => console.error('Error loading site detail:', error));
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            loadPartial('sites');
+            if (initialSiteName) {
+                loadSiteDetail(initialSiteName);
+            } else {
+                loadPartial('sites');
+            }
         });
     </script>
 </body>
