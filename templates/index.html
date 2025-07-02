@@ -115,6 +115,7 @@
                     detail.style.display = 'none';
                     detail.innerHTML = '';
                     container.innerHTML = html;
+                    history.pushState(null, '', '/');
                     const scripts = container.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
