@@ -39,7 +39,16 @@ def index():
     return render_template('index.html', initial_site_name=None)
 
 
-@app.route('/<site_name>')
+@app.route('/sites')
+@app.route('/create_site')
+@app.route('/schedules')
+@app.route('/config')
+def spa_routes():
+    """Serve the SPA entry point for top-level pages."""
+    return render_template('index.html', initial_site_name=None)
+
+
+@app.route('/sites/<site_name>')
 def site_page(site_name):
     if not get_site_by_name(site_name):
         return render_template('index.html', initial_site_name=None), 404
