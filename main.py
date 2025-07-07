@@ -3,8 +3,8 @@ import os
 from utils.config import (
     load_sites_data,
     save_sites_data,
-    load_model_config,
-    save_model_config,
+    load_ai_config,
+    save_ai_config,
     get_credentials_dir,
     save_client_secret,
 )
@@ -222,31 +222,30 @@ def api_schedules_id(schedule_id):
 
 @app.route('/load/config')
 def load_config():
-    model_config = load_model_config()
-    sites = load_sites_data()
-    # In a real application, you would fetch available models from external APIs (OpenRouter/Gemini/etc.)
-    # For now, we'll use a dummy list
+    ai_config = load_ai_config()
+    available_providers = ['OpenAI', 'Gemini', 'OpenRouter', 'Ollama']
     available_models = ['ChatGPT', 'Gemini', 'OpenRouter_Model_A', 'OpenRouter_Model_B']
     return render_template(
         'partials/config.html',
-        model_config=model_config,
-        sites=sites,
+        ai_config=ai_config,
+        available_providers=available_providers,
         available_models=available_models,
     )
 
-@app.route('/api/config/<site_name>', methods=['POST'])
-def api_config(site_name):
+@app.route('/api/config', methods=['POST'])
+def api_config():
+    """Save global AI provider, model and API key."""
     data = request.json
-    selected_model = data.get('model')
+    provider = data.get('provider')
+    api_key = data.get('api_key')
+    model = data.get('model')
 
-    if not selected_model:
-        return jsonify({'error': 'Model not selected'}), 400
+    if not provider or not api_key or not model:
+        return jsonify({'error': 'Provider, API key and model are required'}), 400
 
-    model_configs = load_model_config()
-    model_configs[site_name] = {'model': selected_model}
-    save_model_config(model_configs)
+    save_ai_config({'provider': provider, 'api_key': api_key, 'model': model})
 
-    return jsonify({'message': f'Model for {site_name} updated successfully'}), 200
+    return jsonify({'message': 'AI configuration saved successfully'}), 200
 
 @app.route('/api/ocr/pdf', methods=['POST'])
 def api_ocr_pdf():
