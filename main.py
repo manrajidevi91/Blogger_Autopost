@@ -215,6 +215,51 @@ def upload_template():
     else:
         return jsonify({'error': 'Invalid file type. Only HTML files are allowed.'}), 400
 
+@app.route('/api/templates/<site_name>/<template_name>', methods=['GET', 'PUT', 'DELETE'])
+def api_template(site_name, template_name):
+    """Fetch, update, or delete a site template."""
+    template_path = os.path.join('static', 'templates', site_name, template_name)
+
+    if request.method == 'GET':
+        if os.path.exists(template_path):
+            with open(template_path, 'r', encoding='utf-8') as f:
+                return jsonify({'content': f.read()})
+        return jsonify({'error': 'Template not found'}), 404
+
+    if request.method == 'PUT':
+        data = request.json or {}
+        content = data.get('content')
+        if content is None:
+            return jsonify({'error': 'No content provided'}), 400
+        os.makedirs(os.path.dirname(template_path), exist_ok=True)
+        with open(template_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return jsonify({'message': 'Template updated successfully'}), 200
+
+    if request.method == 'DELETE':
+        if os.path.exists(template_path):
+            os.remove(template_path)
+            return jsonify({'message': 'Template deleted successfully'}), 200
+        return jsonify({'error': 'Template not found'}), 404
+
+
+@app.route('/api/templates/<site_name>/<template_name>/replace', methods=['POST'])
+def replace_template(site_name, template_name):
+    """Replace an existing template with an uploaded file."""
+    if 'template_file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['template_file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if not file.filename.endswith('.html'):
+        return jsonify({'error': 'Invalid file type. Only HTML files are allowed.'}), 400
+
+    template_path = os.path.join('static', 'templates', site_name, template_name)
+    os.makedirs(os.path.dirname(template_path), exist_ok=True)
+    file.save(template_path)
+    return jsonify({'message': 'Template replaced successfully'}), 200
+
 @app.route('/load/schedules')
 def load_schedules():
     schedules = load_schedules_data()
