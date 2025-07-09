@@ -84,27 +84,56 @@
 
 
 <script>
-    document.getElementById('ai-config-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const provider = document.getElementById('provider-select').value;
-        const apiKey = document.getElementById('api-key-input').value;
+  async function updateModelOptions() {
+    const provider = document.getElementById("provider-select").value;
+    const modelSelect = document.getElementById("model-select");
 
-        fetch('/api/config', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ provider: provider, api_key: apiKey })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert(data.message);
-                loadPartial('config');
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => console.error('Error saving configuration:', error));
-    });
+    // Clear previous models
+    modelSelect.innerHTML = `<option disabled selected>Loading models...</option>`;
+
+    try {
+      const response = await fetch(`/api/models/${provider.toLowerCase()}`);
+      if (!response.ok) throw new Error("Model list fetch failed");
+
+      const models = await response.json();
+
+      modelSelect.innerHTML = "";
+
+      if (Array.isArray(models) && models.length > 0) {
+        models.forEach((model) => {
+          const option = document.createElement("option");
+          option.value = model;
+          option.textContent = model;
+          modelSelect.appendChild(option);
+        });
+      } else {
+        modelSelect.innerHTML = `<option disabled>No models available</option>`;
+      }
+    } catch (err) {
+      console.error("Error loading models:", err);
+      modelSelect.innerHTML = `<option disabled>Error loading models</option>`;
+    }
+  }
+
+  document.getElementById('ai-config-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const provider = document.getElementById('provider-select').value;
+    const model = document.getElementById('model-select').value;
+    const apiKey = document.getElementById('api-key-input').value;
+
+    fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, model, api_key: apiKey })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || data.error || 'Unexpected response');
+      loadSection('config');
+    })
+    .catch(error => console.error('Error saving configuration:', error));
+  });
+
+  // Load models immediately on first load
+  updateModelOptions();
 </script>

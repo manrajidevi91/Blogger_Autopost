@@ -365,6 +365,42 @@ def api_youtube():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/models/<provider>', methods=['GET'])
+def get_models_for_provider(provider):
+    from utils.config import load_ai_config
+    import requests
+
+    cfg = load_ai_config()
+    api_key = cfg.get("api_key")
+
+    try:
+        if provider == "openai":
+            headers = {"Authorization": f"Bearer {api_key}"}
+            res = requests.get("https://api.openai.com/v1/models", headers=headers, timeout=10)
+            model_ids = [m['id'] for m in res.json().get("data", []) if m["id"].startswith("gpt-")]
+            return jsonify(sorted(set(model_ids)))
+
+        elif provider == "openrouter":
+            headers = {"Authorization": f"Bearer {api_key}"}
+            res = requests.get("https://openrouter.ai/api/v1/models", headers=headers, timeout=10)
+            model_ids = [m["id"] for m in res.json().get("data", [])]
+            return jsonify(model_ids)
+
+        elif provider == "ollama":
+            res = requests.get("http://localhost:11434/api/tags", timeout=5)
+            model_names = [m["name"] for m in res.json().get("models", [])]
+            return jsonify(model_names)
+
+        elif provider == "gemini":
+            # Gemini does not support dynamic listing (hardcoded fallback)
+            return jsonify(["gemini-pro", "gemini-pro-vision"])
+
+        else:
+            return jsonify([])
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     load_jobs()
     scheduler.start()
