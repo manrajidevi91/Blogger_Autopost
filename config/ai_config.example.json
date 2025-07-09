@@ -1,0 +1,5 @@
+{
+    "provider": "Gemini",
+    "api_key": "YOUR_API_KEY",
+    "model": "gemini-pro"
+}

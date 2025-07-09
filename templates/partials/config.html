@@ -86,51 +86,43 @@
 </style>
 
 <div class="config-panel">
-  <h2>Configuration Panel</h2>
+  <h2>AI Provider Configuration</h2>
 
-  <h3>AI Model Configuration</h3>
-  <form id="model-config-form">
-    <label for="site-select">Select Site:</label>
-    <select id="site-select" name="site_name">
-      {% for site_name, site_data in sites.items() %}
-      <option value="{{ site_name }}">{{ site_name }}</option>
+  <form id="ai-config-form">
+    <label for="provider-select">Provider:</label>
+    <select id="provider-select" name="provider">
+      {% for provider in available_providers %}
+      <option value="{{ provider }}" {% if ai_config.provider == provider %}selected{% endif %}>{{ provider }}</option>
       {% endfor %}
     </select>
 
-    <label for="model-select">Select AI Model:</label>
+    <label for="model-select">AI Model:</label>
     <select id="model-select" name="model">
       {% for model in available_models %}
-      <option value="{{ model }}">{{ model }}</option>
+      <option value="{{ model }}" {% if ai_config.model == model %}selected{% endif %}>{{ model }}</option>
       {% endfor %}
     </select>
+
+    <label for="api-key-input">API Key:</label>
+    <input type="text" id="api-key-input" name="api_key" value="{{ ai_config.api_key or '' }}">
 
     <button type="submit">Save Configuration</button>
   </form>
-
-  <div id="current-model-config">
-    <h3>Current Model Configurations:</h3>
-    <ul>
-      {% for site_name, config in model_config.items() %}
-      <li><strong>{{ site_name }}:</strong> {{ config.model }}</li>
-      {% else %}
-      <li>No model configurations saved yet.</li>
-      {% endfor %}
-    </ul>
-  </div>
 </div>
 
 <script>
-    document.getElementById('model-config-form').addEventListener('submit', function(event) {
+    document.getElementById('ai-config-form').addEventListener('submit', function(event) {
         event.preventDefault();
-        const siteName = document.getElementById('site-select').value;
-        const selectedModel = document.getElementById('model-select').value;
+        const provider = document.getElementById('provider-select').value;
+        const model = document.getElementById('model-select').value;
+        const apiKey = document.getElementById('api-key-input').value;
 
-        fetch(`/api/config/${siteName}`, {
+        fetch('/api/config', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ model: selectedModel })
+            body: JSON.stringify({ provider: provider, api_key: apiKey, model: model })
         })
         .then(response => response.json())
         .then(data => {
@@ -141,6 +133,5 @@
                 alert('Error: ' + data.error);
             }
         })
-        .catch(error => console.error('Error saving model configuration:', error));
-    });
-</script>
+        .catch(error => console.error('Error saving configuration:', error));
+    });</script>

@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import openai
 import google.generativeai as genai
+from utils.config import load_ai_config
 
 def scrape_url_content(url):
     try:
@@ -33,13 +34,19 @@ def generate_with_chatgpt(text: str) -> str:
     """Generate text using the ChatGPT API."""
 
     api_key = os.getenv("OPENAI_API_KEY")
+    model_name = "gpt-3.5-turbo"
+    if not api_key:
+        cfg = load_ai_config()
+        if cfg.get("provider", "").lower() == "openai":
+            api_key = cfg.get("api_key")
+            model_name = cfg.get("model", model_name)
     if not api_key:
         return "OpenAI API key not configured."
 
     try:
         client = openai.OpenAI(api_key=api_key)
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=model_name,
             messages=[{"role": "user", "content": text}],
         )
         return response.choices[0].message.content.strip()
@@ -51,12 +58,18 @@ def generate_with_gemini(text: str) -> str:
     """Generate text using the Google Gemini API."""
 
     api_key = os.getenv("GOOGLE_API_KEY")
+    model_name = "gemini-pro"
+    if not api_key:
+        cfg = load_ai_config()
+        if cfg.get("provider", "").lower() == "gemini":
+            api_key = cfg.get("api_key")
+            model_name = cfg.get("model", model_name)
     if not api_key:
         return "Google API key not configured."
 
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-pro")
+        model = genai.GenerativeModel(model_name)
         response = model.generate_content(text)
         return response.text
     except Exception as exc:  # noqa: BLE001
