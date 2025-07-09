@@ -32,7 +32,7 @@
     margin-top: 10px;
   }
 
-  .site-panel iframe {
+  .template-item iframe {
     width: 120px;
     height: 80px;
     border: 1px solid #ccc;
@@ -44,62 +44,140 @@
     background-color: #007acc;
     color: #fff;
     border: none;
-    padding: 12px 18px;
-    font-size: 16px;
+    padding: 8px 12px;
+    font-size: 14px;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
+    margin: 2px;
   }
 
   .site-panel button:hover {
     background-color: #005fa3;
   }
 
-  .text-center {
-    text-align: center;
-  }
+  .text-center { text-align: center; }
+  #edit-container { margin-top: 30px; }
+  #edit-container textarea { width: 100%; height: 300px; margin-bottom: 10px; }
 </style>
 
 <div class="site-panel">
   <h2>{{ site.name }} Templates</h2>
 
-  <h3>Upload New Template</h3>
-  <form id="upload-template-form" enctype="multipart/form-data">
+  <h3>Add New Template</h3>
+  <form id="add-template-form" enctype="multipart/form-data">
     <input type="hidden" name="site_name" value="{{ site.name }}">
-    <input type="file" name="template_file" accept=".html">
-    <button type="submit">Upload Template</button>
+    <input type="file" name="template_file" accept=".html" required>
+    <button type="submit">Upload</button>
   </form>
 
   <h3>Existing Templates</h3>
   <div id="existing-templates-list">
     {% for template in templates %}
-    <div class="text-center">
+    <div class="template-item text-center" data-template="{{ template }}">
       <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
       <div>{{ template }}</div>
+      <div>
+        <button class="edit-btn">Edit</button>
+        <label class="replace-label">
+          Replace <input type="file" class="replace-input" accept=".html" style="display:none;">
+        </label>
+        <button class="delete-btn">Delete</button>
+      </div>
     </div>
     {% else %}
     <p>No templates uploaded yet.</p>
     {% endfor %}
   </div>
+
+  <div id="edit-container" style="display:none;">
+    <h3>Edit Template: <span id="edit-template-name"></span></h3>
+    <textarea id="edit-template-content"></textarea>
+    <button id="save-template-btn">Save</button>
+    <button id="cancel-edit-btn">Cancel</button>
+  </div>
 </div>
 
 <script>
-document.getElementById('upload-template-form').addEventListener('submit', function(event) {
-    event.preventDefault();
+(function() {
+  const siteName = '{{ site.name }}';
+
+  document.getElementById('add-template-form').addEventListener('submit', function(e) {
+    e.preventDefault();
     const formData = new FormData(this);
-    fetch('/api/upload_template', {
+    fetch('/api/upload_template', { method: 'POST', body: formData })
+      .then(r => r.json())
+      .then(d => {
+        alert(d.message || d.error);
+        if (d.message) loadSiteTemplates(siteName);
+      })
+      .catch(err => console.error('Upload error', err));
+  });
+
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const template = this.closest('.template-item').dataset.template;
+      const res = await fetch(`/api/templates/${encodeURIComponent(siteName)}/${encodeURIComponent(template)}`);
+      if (!res.ok) { alert('Failed to load template'); return; }
+      const data = await res.json();
+      document.getElementById('edit-template-name').textContent = template;
+      document.getElementById('edit-template-content').value = data.content || '';
+      const edit = document.getElementById('edit-container');
+      edit.style.display = 'block';
+      edit.dataset.template = template;
+    });
+  });
+
+  document.getElementById('save-template-btn').addEventListener('click', function() {
+    const template = document.getElementById('edit-container').dataset.template;
+    const content = document.getElementById('edit-template-content').value;
+    fetch(`/api/templates/${encodeURIComponent(siteName)}/${encodeURIComponent(template)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    })
+    .then(r => r.json())
+    .then(d => {
+      alert(d.message || d.error);
+      if (d.message) {
+        document.getElementById('edit-container').style.display = 'none';
+        loadSiteTemplates(siteName);
+      }
+    });
+  });
+
+  document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+    document.getElementById('edit-container').style.display = 'none';
+  });
+
+  document.querySelectorAll('.replace-input').forEach(input => {
+    input.addEventListener('change', function() {
+      const template = this.closest('.template-item').dataset.template;
+      const formData = new FormData();
+      formData.append('template_file', this.files[0]);
+      fetch(`/api/templates/${encodeURIComponent(siteName)}/${encodeURIComponent(template)}/replace`, {
         method: 'POST',
         body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
-            loadSiteTemplates('{{ site.name }}');
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => console.error('Error uploading template:', error));
-});
+      })
+      .then(r => r.json())
+      .then(d => {
+        alert(d.message || d.error);
+        if (d.message) loadSiteTemplates(siteName);
+      });
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const template = this.closest('.template-item').dataset.template;
+      if (!confirm('Delete ' + template + '?')) return;
+      fetch(`/api/templates/${encodeURIComponent(siteName)}/${encodeURIComponent(template)}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(d => {
+          alert(d.message || d.error);
+          if (d.message) loadSiteTemplates(siteName);
+        });
+    });
+  });
+})();
 </script>
