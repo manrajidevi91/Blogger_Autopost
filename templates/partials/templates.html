@@ -1,0 +1,78 @@
+<!-- partials/templates.html -->
+<style>
+  .site-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 10px 20px;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  .site-card {
+    width: 260px;
+    height: 220px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+  }
+
+  .site-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .site-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    background-color: #f0f0f0;
+  }
+
+  .site-card .card-body {
+    padding: 12px 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .site-card .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .site-card .card-text {
+    font-size: 14px;
+    color: #666;
+  }
+</style>
+
+<div class="site-cards-container">
+  {% for site_name, site_data in sites.items() %}
+    <a class="site-card" href="/templates/{{ site_name }}" onclick="event.preventDefault(); loadSiteTemplates('{{ site_name }}')">
+      {% if site_data.logo %}
+        <img src="{{ site_data.logo }}" alt="{{ site_data.name or site_name }} logo">
+      {% else %}
+        <img src="https://via.placeholder.com/260x120?text=No+Logo" alt="Default logo">
+      {% endif %}
+      <div class="card-body">
+        <div class="card-title">{{ site_data.name or site_name }}</div>
+        <div class="card-text">Language: {{ site_data.language }}</div>
+      </div>
+    </a>
+  {% endfor %}
+</div>

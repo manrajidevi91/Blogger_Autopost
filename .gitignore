@@ -47,6 +47,8 @@ setup.bat
 Folder_Creation.bat
 utils/__pycache__/*.pyc
 config/client_secret.json
+config/*/client_secret.json
 .gitignore
 config/token.pickle
 resolve_merge.bat
+config/ai_config.json
