@@ -64,10 +64,15 @@
 
   <form id="ai-config-form">
     <label for="provider-select">Provider:</label>
-    <select id="provider-select" name="provider">
+    <select id="provider-select" name="provider" onchange="updateModelOptions()">
       {% for provider in available_providers %}
       <option value="{{ provider }}" {% if ai_config.provider == provider %}selected{% endif %}>{{ provider }}</option>
       {% endfor %}
+    </select>
+
+    <label for="model-select">Model:</label>
+    <select id="model-select" name="model">
+      <option value="{{ ai_config.model or '' }}" selected hidden>{{ ai_config.model or 'Select model' }}</option>
     </select>
 
     <label for="api-key-input">API Key:</label>
