@@ -1,8 +1,22 @@
 {
     "providers": {
-        "gemini": {
-            "model": "gemini-2.5-pro",
-            "api_key": "AIzaSyA-IlP56JMy2aQVmEbs__hypXP4NaVtI40"
-        }
-    }
-}
+      "gemini": {
+        "model": "gemini-2.5-pro",
+        "api_key": "AIzaSyA-IlP56JMy2aQVmEbs__hypXP4NaVtI40"
+      },
+      "openai": {
+        "model": "gpt-3.5-turbo",
+        "api_key": "sk-xxxxxxxxxxxxxxxx"
+      },
+      "openrouter": {
+        "model": "openrouter-model-name",
+        "api_key": "or-xxxxxxxxxxxxxxxx"
+      },
+      "ollama": {
+        "model": "mistral",
+        "api_key": ""
+      }
+    },
+    "active_provider": "gemini"
+  }
+  
