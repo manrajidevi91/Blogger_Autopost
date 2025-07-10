@@ -107,7 +107,9 @@
 
     <div class="mb-3">
       <label for="ai-provider">AI Provider</label>
-      <select id="ai-provider" name="ai_provider" required></select>
+      <select id="ai-provider" name="ai_provider" required>
+        <option disabled selected>Loading...</option>
+      </select>
     </div>
 
     <div class="mb-3">
@@ -145,8 +147,20 @@
 </div>
 
 <script type="text/javascript">
-  const savedConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
-  console.log("✅ Loaded savedConfigs:", savedConfigs);
+  // Parse config JSON into an object to avoid template rendering issues
+  let savedConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
+
+  async function refreshProviders() {
+    try {
+      const res = await fetch('/api/providers');
+      if (res.ok) {
+        const providers = await res.json();
+        savedConfigs = { providers };
+      }
+    } catch (err) {
+      console.error('⚠️ Failed to load providers:', err);
+    }
+  }
 
   function updateInputField() {
     const container = document.getElementById('source-input-container');
@@ -220,8 +234,9 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     console.log("📦 DOM loaded, initializing form...");
+    await refreshProviders();
     updateInputField();
     populateProvidersAndModels();
   });
