@@ -20,13 +20,9 @@
 
   .site-panel h3 {
     font-size: 20px;
-    margin-top: 40px;
+    margin-top: 30px;
     margin-bottom: 15px;
     color: #007acc;
-  }
-
-  .site-panel .mb-3 {
-    margin-bottom: 20px;
   }
 
   .site-panel label {
@@ -45,23 +41,19 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     background-color: #fdfdfd;
+    margin-bottom: 20px;
   }
 
   .site-panel input[type="file"] {
-    margin-top: 10px;
+    margin-bottom: 20px;
   }
 
-  .site-panel input[type="checkbox"],
-  .site-panel input[type="radio"] {
-    margin-right: 8px;
-  }
-
-  .site-panel .form-check {
-    margin: 10px;
+  .form-check {
     text-align: center;
+    margin: 10px;
   }
 
-  .site-panel iframe {
+  iframe {
     width: 120px;
     height: 80px;
     border: 1px solid #ccc;
@@ -69,9 +61,7 @@
     margin-bottom: 5px;
   }
 
-  .template-container,
-  .schedule-template-container,
-  #existing-templates-list {
+  .schedule-template-container {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
@@ -93,125 +83,57 @@
     background-color: #005fa3;
   }
 
-  .site-panel hr {
-    border: none;
-    height: 1px;
-    background: #ddd;
-    margin: 40px 0 30px;
-  }
-
   .form-check-label {
     font-size: 14px;
     color: #333;
   }
-
-  .text-center {
-    text-align: center;
-  }
 </style>
 
 <div class="site-panel">
-  <h2>{{ site.name }} Management</h2>
-  <div class="mb-3">
-    <strong>Language:</strong> {{ site.language }}<br>
-    <strong>Blog ID:</strong> {{ site.blog_id }}
-  </div>
+  <h2>{{ site.name }} Schedule</h2>
 
-  <h3>Create Post</h3>
-  <form id="post-now-form">
-    <input type="hidden" id="post-site-name" value="{{ site.name }}">
-
-    <div class="mb-3">
-      <label for="source-type">Source Type</label>
-      <select id="source-type">
-        <option value="url">URL</option>
-        <option value="youtube">YouTube</option>
-        <option value="pdf">PDF</option>
-        <option value="image">Image</option>
-      </select>
-    </div>
-
-    <div id="source-input-container" class="mb-3"></div>
-
-    <div class="mb-3">
-      <label for="ai-model">AI Model</label>
-      <select id="ai-model">
-        <option value="ChatGPT">ChatGPT</option>
-        <option value="Gemini">Gemini</option>
-        <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
-        <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
-      </select>
-    </div>
-
-    <div class="mb-3">
-      <label>Template</label>
-      <div class="template-container">
-        {% for template in templates %}
-        <div class="form-check">
-          <input type="radio" name="template" id="template{{ loop.index }}" value="{{ template }}" {% if loop.first %}checked{% endif %}>
-          <label class="form-check-label" for="template{{ loop.index }}">
-            <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
-            <div>{{ template }}</div>
-          </label>
-        </div>
-        {% else %}
-        <p>No templates uploaded yet.</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <button type="submit">Post Now</button>
-  </form>
-
-  <hr>
-
-  <h3>Schedule Post</h3>
   <form id="schedule-form">
     <input type="hidden" id="schedule-site-name" value="{{ site.name }}">
 
-    <div class="mb-3">
-      <label for="schedule-source-type">Source Type</label>
-      <select id="schedule-source-type">
-        <option value="url">URL</option>
-        <option value="youtube">YouTube</option>
-        <option value="pdf">PDF</option>
-        <option value="image">Image</option>
-      </select>
-    </div>
+    <label for="source-type">Source Type</label>
+    <select id="source-type" onchange="updateInputField()">
+      <option value="url">URL</option>
+      <option value="youtube">YouTube</option>
+      <option value="pdf">PDF</option>
+      <option value="image">Image</option>
+    </select>
 
-    <div id="schedule-source-input" class="mb-3"></div>
+    <div id="source-input-container"></div>
 
     <div class="mb-3">
-      <label for="schedule-ai-model">AI Model</label>
-      <select id="schedule-ai-model">
-        <option value="ChatGPT">ChatGPT</option>
-        <option value="Gemini">Gemini</option>
-        <option value="OpenRouter_Model_A">OpenRouter_Model_A</option>
-        <option value="OpenRouter_Model_B">OpenRouter_Model_B</option>
-      </select>
+      <label for="ai-provider">AI Provider</label>
+      <select id="ai-provider" name="ai_provider" required></select>
     </div>
 
     <div class="mb-3">
-      <label>Templates</label>
-      <div class="schedule-template-container">
-        {% for template in templates %}
-        <div class="form-check">
-          <input type="checkbox" name="templates" id="schedule-template{{ loop.index }}" value="{{ template }}">
-          <label class="form-check-label" for="schedule-template{{ loop.index }}">
-            <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
-            <div>{{ template }}</div>
-          </label>
-        </div>
-        {% else %}
-        <p>No templates uploaded yet.</p>
-        {% endfor %}
+      <label for="ai-model">Model</label>
+      <select id="ai-model" name="ai_model" required>
+        <option disabled selected>Select model</option>
+      </select>
+    </div>
+
+    <label>Templates</label>
+    <div class="schedule-template-container" id="schedule-templates">
+      {% for template in templates %}
+      <div class="form-check">
+        <input type="checkbox" name="templates" id="template{{ loop.index }}" value="{{ template }}">
+        <label class="form-check-label" for="template{{ loop.index }}">
+          <iframe src="{{ url_for('static', filename='templates/' + template) }}"></iframe>
+          <div>{{ template }}</div>
+        </label>
       </div>
+      {% else %}
+      <p>No templates uploaded yet.</p>
+      {% endfor %}
     </div>
 
-    <div class="mb-3">
-      <label for="scheduled-time">Date &amp; Time</label>
-      <input type="datetime-local" id="scheduled-time" required>
-    </div>
+    <label for="scheduled-time">Date & Time</label>
+    <input type="datetime-local" id="scheduled-time" required>
 
     <div class="form-check mb-3">
       <input type="checkbox" id="repeat-checkbox">
@@ -220,134 +142,157 @@
 
     <button type="submit">Create Schedule</button>
   </form>
-
-  <hr>
-
-  <h3>Upload New Template</h3>
-  <form id="upload-template-form" enctype="multipart/form-data">
-    <input type="hidden" name="site_name" value="{{ site.name }}">
-    <input type="file" name="template_file" accept=".html">
-    <button type="submit">Upload Template</button>
-  </form>
-
-  <h3>Existing Templates</h3>
-  <div id="existing-templates-list">
-    {% for template in templates %}
-    <div class="text-center">
-      <iframe src="{{ url_for('static', filename='templates/' + site.name + '/' + template) }}"></iframe>
-      <div>{{ template }}</div>
-    </div>
-    {% else %}
-    <p>No templates uploaded yet.</p>
-    {% endfor %}
-  </div>
 </div>
 
+<script type="text/javascript">
+  const savedConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
+  console.log("✅ Loaded savedConfigs:", savedConfigs);
 
-<script>
-function updateInput(containerId, type) {
-    const container = document.getElementById(containerId);
+  function updateInputField() {
+    const container = document.getElementById('source-input-container');
+    const type = document.getElementById('source-type').value;
     container.innerHTML = '';
+
     const input = document.createElement('input');
     input.className = 'form-control';
-    if (type === 'url' || type === 'youtube') {
-        input.type = 'text';
-        input.placeholder = 'Enter URL';
-    } else if (type === 'pdf' || type === 'image') {
-        input.type = 'file';
-    }
+    input.type = (type === 'url' || type === 'youtube') ? 'text' : 'file';
+    input.placeholder = (type === 'url' || type === 'youtube') ? 'Enter URL' : '';
     container.appendChild(input);
-}
 
-document.getElementById('source-type').addEventListener('change', e => {
-    updateInput('source-input-container', e.target.value);
-});
-document.getElementById('schedule-source-type').addEventListener('change', e => {
-    updateInput('schedule-source-input', e.target.value);
-});
-updateInput('source-input-container', document.getElementById('source-type').value);
-updateInput('schedule-source-input', document.getElementById('schedule-source-type').value);
+    console.log("📥 Input field updated for type:", type);
+  }
 
-document.getElementById('post-now-form').addEventListener('submit', async function(e) {
+  function populateProvidersAndModels() {
+    const providerSelect = document.getElementById('ai-provider');
+    const modelSelect = document.getElementById('ai-model');
+
+    if (!providerSelect || !modelSelect) {
+      console.warn("⚠️ AI Provider or Model select not found in DOM.");
+      return;
+    }
+
+    providerSelect.innerHTML = '';
+    modelSelect.innerHTML = '';
+
+    const providers = Object.keys(savedConfigs.providers || {});
+    console.log("🔍 Found AI providers:", providers);
+
+    if (providers.length === 0) {
+      providerSelect.innerHTML = `<option disabled selected>No AI providers configured</option>`;
+      modelSelect.innerHTML = `<option disabled selected>No model</option>`;
+      return;
+    }
+
+    providers.forEach((provider, index) => {
+      const opt = document.createElement('option');
+      opt.value = provider;
+      opt.textContent = provider.charAt(0).toUpperCase() + provider.slice(1);
+      providerSelect.appendChild(opt);
+    });
+
+    providerSelect.selectedIndex = 0;
+    updateModelOptions();
+  }
+
+  function updateModelOptions() {
+    const providerSelect = document.getElementById('ai-provider');
+    const modelSelect = document.getElementById('ai-model');
+
+    if (!providerSelect || !modelSelect) {
+      console.warn("⚠️ AI select elements not ready.");
+      return;
+    }
+
+    const provider = providerSelect.value;
+    const config = (savedConfigs.providers || {})[provider];
+    modelSelect.innerHTML = '';
+
+    console.log("⚙️ Selected provider:", provider, "=> Config:", config);
+
+    if (config && config.model) {
+      const opt = document.createElement('option');
+      opt.value = config.model;
+      opt.textContent = config.model;
+      opt.selected = true;
+      modelSelect.appendChild(opt);
+    } else {
+      modelSelect.innerHTML = `<option disabled selected>No model configured</option>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log("📦 DOM loaded, initializing form...");
+    updateInputField();
+    populateProvidersAndModels();
+  });
+
+  document.getElementById('ai-provider').addEventListener('change', () => {
+    console.log("🔄 Provider changed");
+    updateModelOptions();
+  });
+
+  document.getElementById('schedule-form').addEventListener('submit', async function (e) {
     e.preventDefault();
+    console.log("🚀 Submitting schedule form...");
+
     const inputEl = document.querySelector('#source-input-container input');
     let sourceInput = '';
+
     if (inputEl.type === 'file') {
-        const file = inputEl.files[0];
-        if (!file) { alert('No file selected'); return; }
-        const formData = new FormData();
-        formData.append('file', file);
-        const ocrUrl = document.getElementById('source-type').value === 'pdf' ? '/api/ocr/pdf' : '/api/ocr/image';
-        try {
-            const ocrRes = await fetch(ocrUrl, { method: 'POST', body: formData });
-            const ocrData = await ocrRes.json();
-            if (!ocrRes.ok) { alert(ocrData.error || 'Failed to process file'); return; }
-            sourceInput = ocrData.content;
-        } catch (err) {
-            console.error(err); alert('Failed to process file'); return;
-        }
+      const file = inputEl.files[0];
+      if (!file) return alert('No file selected');
+      console.log("📁 File selected:", file.name);
+
+      const formData = new FormData();
+      formData.append('file', file);
+      const ocrUrl = document.getElementById('source-type').value === 'pdf' ? '/api/ocr/pdf' : '/api/ocr/image';
+
+      try {
+        const res = await fetch(ocrUrl, { method: 'POST', body: formData });
+        const data = await res.json();
+        console.log("📤 OCR Response:", data);
+        if (!res.ok) return alert(data.error || 'Failed to extract text');
+        sourceInput = data.content;
+      } catch (err) {
+        console.error("❌ OCR failed:", err);
+        return alert('Failed to process file');
+      }
     } else {
-        sourceInput = inputEl.value;
+      sourceInput = inputEl.value;
+      console.log("🔗 Source input:", sourceInput);
     }
-    const data = {
-        site_name: document.getElementById('post-site-name').value,
-        content_source: document.getElementById('source-type').value,
-        ai_model: document.getElementById('ai-model').value,
-        template: document.querySelector('input[name="template"]:checked')?.value,
-        source_input: sourceInput
-    };
-    fetch('/api/create_post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(r => r.json())
-    .then(d => alert(d.message || d.error))
-    .catch(err => { console.error(err); alert('Failed to create post'); });
-});
 
-document.getElementById('schedule-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const inputEl = document.querySelector('#schedule-source-input input');
-    const templates = Array.from(document.querySelectorAll('#schedule-templates input[name="templates"]:checked')).map(i => i.value);
+    const selectedTemplates = Array.from(document.querySelectorAll('input[name="templates"]:checked'))
+                                   .map(input => input.value);
+    console.log("📄 Selected templates:", selectedTemplates);
+
     const payload = {
-        site_name: document.getElementById('schedule-site-name').value,
-        content_source: document.getElementById('schedule-source-type').value,
-        source_input: inputEl.type === 'file' ? (inputEl.files[0] ? inputEl.files[0].name : '') : inputEl.value,
-        scheduled_time: document.getElementById('scheduled-time').value,
-        repeat: document.getElementById('repeat-checkbox').checked,
-        ai_model: document.getElementById('schedule-ai-model').value,
-        template: templates
+      site_name: document.getElementById('schedule-site-name').value,
+      content_source: document.getElementById('source-type').value,
+      source_input: sourceInput,
+      scheduled_time: document.getElementById('scheduled-time').value,
+      repeat: document.getElementById('repeat-checkbox').checked,
+      ai_provider: document.getElementById('ai-provider').value,
+      ai_model: document.getElementById('ai-model').value,
+      template: selectedTemplates
     };
-    fetch('/api/schedules', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json())
-    .then(d => {
-        alert(d.message || d.error);
-        if (d.message) loadPartial('schedules');
-    })
-    .catch(err => { console.error(err); alert('Failed to create schedule'); });
-});
 
-document.getElementById('upload-template-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    fetch('/api/upload_template', {
-        method: 'POST',
-        body: formData
+    console.log("📬 Final payload:", payload);
+
+    fetch('/api/schedules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        if (data.message) {
-            alert(data.message);
-            loadSiteDetail('{{ site.name }}');
-        } else {
-            alert('Error: ' + data.error);
-        }
+      console.log("✅ Schedule creation response:", data);
+      alert(data.message || data.error);
+      if (data.message) loadPartial('schedules');
     })
-    .catch(error => console.error('Error uploading template:', error));
-});
+    .catch(err => {
+      console.error("❌ Failed to create schedule:", err);
+      alert('Failed to create schedule');
+    });
+  });
 </script>

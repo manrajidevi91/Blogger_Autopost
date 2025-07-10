@@ -166,31 +166,6 @@
                 .catch(error => console.error('Error loading site detail:', error));
         }
 
-        function loadSiteTemplates(siteName) {
-            fetch(`/load/templates/${encodeURIComponent(siteName)}`)
-                .then(response => response.text())
-                .then(html => {
-                    const detail = document.getElementById('site-detail-container');
-                    const container = document.getElementById('content');
-                    container.style.display = 'none';
-                    detail.style.display = 'block';
-                    detail.innerHTML = html;
-                    const scripts = detail.querySelectorAll('script');
-                    scripts.forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        if (oldScript.src) {
-                            newScript.src = oldScript.src;
-                        } else {
-                            newScript.textContent = oldScript.textContent;
-                        }
-                        document.body.appendChild(newScript);
-                        oldScript.remove();
-                    });
-                    history.pushState(null, '', `/templates/${encodeURIComponent(siteName)}`);
-                })
-                .catch(error => console.error('Error loading site templates:', error));
-        }
-
         function handleRoute() {
             const path = window.location.pathname;
             if (path.startsWith('/sites/') && path.split('/').length > 2) {

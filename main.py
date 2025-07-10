@@ -137,9 +137,23 @@ def api_sites_name(name):
 
 @app.route("/load/site/<site_name>")
 def load_site_detail(site_name):
+    from utils.config import load_ai_config
+    from utils.sites import get_site_by_name, list_site_templates
+
     site = get_site_by_name(site_name)
     templates = list_site_templates(site_name)
-    return render_template("partials/site_detail.html", site=site, templates=templates)
+    ai_config = load_ai_config()
+
+    # ✅ Extract saved providers (like gemini, openai etc.)
+    saved_providers = ai_config.get("providers", {})
+
+    return render_template(
+        "partials/site_detail.html",
+        site=site,
+        templates=templates,
+        ai_config={"providers": saved_providers},  # Only the actual saved ones
+        available_providers=list(saved_providers.keys())
+    )
 
 @app.route('/load/sites')
 def load_sites():
@@ -152,14 +166,12 @@ def load_create_site():
 
 @app.route('/load/templates')
 def load_templates():
-    sites = load_sites_data()
-    return render_template('partials/templates.html', sites=sites)
-
-@app.route('/load/templates/<site_name>')
-def load_site_templates(site_name):
-    site = get_site_by_name(site_name)
-    templates = list_site_templates(site_name)
-    return render_template('partials/site_templates.html', site=site, templates=templates)
+    template_path = os.path.join('static', 'templates')
+    if os.path.exists(template_path):
+        templates = [f for f in os.listdir(template_path) if f.endswith('.html')]
+    else:
+        templates = []
+    return render_template('partials/templates.html', templates=templates)
 
 @app.route('/api/create_post', methods=['POST'])
 def api_create_post():
@@ -198,22 +210,18 @@ def api_schedules():
 def upload_template():
     if 'template_file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
-    file = request.files['template_file']
-    site_name = request.form.get('site_name')
 
+    file = request.files['template_file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    if not site_name:
-        return jsonify({'error': 'Site name is missing'}), 400
 
     if file and file.filename.endswith('.html'):
-        site_template_path = os.path.join('static', 'templates', site_name)
-        os.makedirs(site_template_path, exist_ok=True)
-        filepath = os.path.join(site_template_path, file.filename)
-        file.save(filepath)
+        save_path = os.path.join('static', 'templates')
+        os.makedirs(save_path, exist_ok=True)
+        file.save(os.path.join(save_path, file.filename))
         return jsonify({'message': 'Template uploaded successfully'}), 200
-    else:
-        return jsonify({'error': 'Invalid file type. Only HTML files are allowed.'}), 400
+
+    return jsonify({'error': 'Invalid file type. Only HTML files are allowed.'}), 400
 
 @app.route('/api/templates/<site_name>/<template_name>', methods=['GET', 'PUT', 'DELETE'])
 def api_template(site_name, template_name):
@@ -237,11 +245,14 @@ def api_template(site_name, template_name):
         return jsonify({'message': 'Template updated successfully'}), 200
 
     if request.method == 'DELETE':
-        if os.path.exists(template_path):
-            os.remove(template_path)
-            return jsonify({'message': 'Template deleted successfully'}), 200
-        return jsonify({'error': 'Template not found'}), 404
-
+        try:
+            if os.path.exists(template_path):
+                os.remove(template_path)
+                return jsonify({'message': f'Template \"{template_name}\" deleted successfully'}), 200
+            else:
+                return jsonify({'error': 'Template not found'}), 404
+        except Exception as e:
+            return jsonify({'error': f'Failed to delete template: {e}'}), 500
 
 @app.route('/api/templates/<site_name>/<template_name>/replace', methods=['POST'])
 def replace_template(site_name, template_name):
@@ -286,6 +297,13 @@ def api_schedules_id(schedule_id):
 @app.route('/load/config')
 def load_config():
     ai_config = load_ai_config()
+
+    # Fix: Ensure 'providers' and 'provider' keys are always present
+    if "providers" not in ai_config:
+        ai_config["providers"] = {}
+    if "provider" not in ai_config:
+        ai_config["provider"] = "gemini"  # or any default provider like 'openai'
+
     available_providers = ['OpenAI', 'Gemini', 'OpenRouter', 'Ollama']
     return render_template(
         'partials/config.html',
@@ -295,17 +313,25 @@ def load_config():
 
 @app.route('/api/config', methods=['POST'])
 def api_config():
-    """Save global AI provider and API key."""
     data = request.json
-    provider = data.get('provider')
-    api_key = data.get('api_key')
+    provider = data.get("provider", "").lower()
+    model = data.get("model", "")
+    api_key = data.get("api_key", "")
 
-    if not provider or not api_key:
-        return jsonify({'error': 'Provider and API key are required'}), 400
+    if not provider:
+        return jsonify({"error": "Provider is required"}), 400
 
-    save_ai_config({'provider': provider, 'api_key': api_key})
+    cfg = load_ai_config()
+    providers_cfg = cfg.get("providers", {})
 
-    return jsonify({'message': 'AI configuration saved successfully'}), 200
+    # Update the specific provider's config
+    providers_cfg[provider] = {
+        "model": model,
+        "api_key": api_key
+    }
+
+    save_ai_config({"providers": providers_cfg})
+    return jsonify({"message": f"Configuration saved for {provider}"}), 200
 
 @app.route('/api/ocr/pdf', methods=['POST'])
 def api_ocr_pdf():
@@ -367,39 +393,52 @@ def api_youtube():
 
 @app.route('/api/models/<provider>', methods=['GET'])
 def get_models_for_provider(provider):
-    from utils.config import load_ai_config
     import requests
+    from flask import request
+    from utils.config import load_ai_config
 
+    provider = provider.lower()
     cfg = load_ai_config()
-    api_key = cfg.get("api_key")
+    providers_cfg = cfg.get("providers", {})
+    saved_api_key = providers_cfg.get(provider, {}).get("api_key", "")
+    api_key = request.args.get("api_key") or saved_api_key
 
     try:
         if provider == "openai":
+            if not api_key:
+                return jsonify({"error": "OpenAI API key is required."}), 400
             headers = {"Authorization": f"Bearer {api_key}"}
             res = requests.get("https://api.openai.com/v1/models", headers=headers, timeout=10)
-            model_ids = [m['id'] for m in res.json().get("data", []) if m["id"].startswith("gpt-")]
+            if res.status_code != 200:
+                return jsonify({"error": res.text}), 500
+            model_ids = [m["id"] for m in res.json().get("data", []) if "gpt" in m["id"]]
             return jsonify(sorted(set(model_ids)))
 
         elif provider == "openrouter":
-            headers = {"Authorization": f"Bearer {api_key}"}
+            headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
             res = requests.get("https://openrouter.ai/api/v1/models", headers=headers, timeout=10)
+            if res.status_code != 200:
+                return jsonify({"error": res.text}), 500
             model_ids = [m["id"] for m in res.json().get("data", [])]
-            return jsonify(model_ids)
+            return jsonify(sorted(set(model_ids)))
 
         elif provider == "ollama":
             res = requests.get("http://localhost:11434/api/tags", timeout=5)
-            model_names = [m["name"] for m in res.json().get("models", [])]
-            return jsonify(model_names)
+            model_ids = [m["name"] for m in res.json().get("models", [])]
+            return jsonify(sorted(set(model_ids)))
 
         elif provider == "gemini":
-            # Gemini does not support dynamic listing (hardcoded fallback)
-            return jsonify(["gemini-pro", "gemini-pro-vision"])
+            return jsonify([
+                "gemini-2.5-pro",
+                "gemini-2.5-flash",
+                "gemini-2.0-flash",
+                "gemini-2.0-flash-lite"
+            ])
 
-        else:
-            return jsonify([])
+        return jsonify({"error": "Unknown provider"}), 400
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Model fetch failed: {e}"}), 500
 
 if __name__ == '__main__':
     load_jobs()

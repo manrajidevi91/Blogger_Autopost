@@ -22,6 +22,7 @@
     flex-direction: column;
     cursor: pointer;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+    position: relative;
   }
 
   .site-card:hover {
@@ -29,11 +30,11 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   }
 
-  .site-card img {
+  .site-card iframe {
     width: 100%;
     height: 120px;
-    object-fit: cover;
-    background-color: #f0f0f0;
+    border: none;
+    background: #f9f9f9;
   }
 
   .site-card .card-body {
@@ -45,34 +46,172 @@
     text-align: center;
   }
 
-  .site-card .card-title {
-    font-size: 16px;
+  .card-title {
+    font-size: 15px;
     font-weight: 600;
     color: #2c3e50;
-    margin-bottom: 6px;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .site-card .card-text {
+  .add-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: #007acc;
+    background: #f0f8ff;
+    cursor: pointer;
+  }
+
+  .icon-btn {
+    position: absolute;
+    top: 5px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
     font-size: 14px;
-    color: #666;
+    cursor: pointer;
+  }
+
+  .icon-btn.edit {
+    left: 5px;
+  }
+
+  .icon-btn.delete {
+    right: 5px;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+  }
+
+  .modal-content {
+    background: #ffffff;
+    padding: 25px 20px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    font-family: "Segoe UI", sans-serif;
+    text-align: center;
+  }
+
+  .modal-content h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .modal-content input[type="file"] {
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .modal-content button {
+    background-color: #007acc;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .modal-content button:hover {
+    background-color: #005fa3;
   }
 </style>
 
+
 <div class="site-cards-container">
-  {% for site_name, site_data in sites.items() %}
-    <a class="site-card" href="/templates/{{ site_name }}" onclick="event.preventDefault(); loadSiteTemplates('{{ site_name }}')">
-      {% if site_data.logo %}
-        <img src="{{ site_data.logo }}" alt="{{ site_data.name or site_name }} logo">
-      {% else %}
-        <img src="https://via.placeholder.com/260x120?text=No+Logo" alt="Default logo">
-      {% endif %}
-      <div class="card-body">
-        <div class="card-title">{{ site_data.name or site_name }}</div>
-        <div class="card-text">Language: {{ site_data.language }}</div>
-      </div>
-    </a>
+  {% for template in templates %}
+  <div class="site-card" data-template="{{ template }}">
+    <button class="icon-btn edit" title="Edit">✏️</button>
+    <button class="icon-btn delete" title="Delete">🗑️</button>
+    <iframe src="{{ url_for('static', filename='templates/' + template) }}"></iframe>
+    <div class="card-body">
+      <div class="card-title">{{ template }}</div>
+    </div>
+  </div>
   {% endfor %}
+
+  <!-- Add New Template Card -->
+  <div class="site-card add-card" onclick="openUploadModal()">+</div>
 </div>
+
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+  <div class="modal-content">
+    <h3 style="text-align:center;">Upload New Template</h3>
+    <form id="templateUploadForm">
+      <input type="file" name="template_file" accept=".html" required>
+      <button type="submit">Upload</button>
+      <button type="button" onclick="closeUploadModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function openUploadModal() {
+  document.getElementById('uploadModal').style.display = 'flex';
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').style.display = 'none';
+}
+
+document.getElementById('templateUploadForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  fetch('/api/upload_template', {
+    method: 'POST',
+    body: formData
+  })
+  .then(r => r.json())
+  .then(d => {
+    alert(d.message || d.error);
+    if (d.message) {
+      closeUploadModal();
+      loadSiteTemplates();
+    }
+  });
+});
+
+document.querySelectorAll('.delete').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const card = this.closest('.site-card');
+    const template = card.dataset.template;
+    if (!confirm(`Delete template "${template}"?`)) return;
+    fetch(`/api/templates/${encodeURIComponent(template)}`, {
+      method: 'DELETE'
+    })
+    .then(r => r.json())
+    .then(d => {
+      alert(d.message || d.error);
+      if (d.message) {
+        loadSiteTemplates();
+      }
+    });
+  });
+});
+</script>

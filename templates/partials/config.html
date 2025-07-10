@@ -64,46 +64,65 @@
 
   <form id="ai-config-form">
     <label for="provider-select">Provider:</label>
-    <select id="provider-select" name="provider" onchange="updateModelOptions()">
+    <select id="provider-select" name="provider">
       {% for provider in available_providers %}
       <option value="{{ provider }}" {% if ai_config.provider == provider %}selected{% endif %}>{{ provider }}</option>
       {% endfor %}
     </select>
 
+    <label for="api-key-input">API Key:</label>
+    <input type="text" id="api-key-input" name="api_key" value="">
+
     <label for="model-select">Model:</label>
     <select id="model-select" name="model">
-      <option value="{{ ai_config.model or '' }}" selected hidden>{{ ai_config.model or 'Select model' }}</option>
+      <option value="" selected hidden>Select model</option>
     </select>
-
-    <label for="api-key-input">API Key:</label>
-    <input type="text" id="api-key-input" name="api_key" value="{{ ai_config.api_key or '' }}">
 
     <button type="submit">Save Configuration</button>
   </form>
 </div>
 
+<script type="text/javascript">
+  if (!window.savedConfigsInitialized) {
+    window.savedConfigs = JSON.parse('{{ ai_config.providers | tojson | safe }}');
+    window.savedConfigsInitialized = true;
+  }
 
-<script>
-  async function updateModelOptions() {
-    const provider = document.getElementById("provider-select").value;
+  async function loadModels() {
+    const provider = document.getElementById("provider-select").value.toLowerCase();
+    const apiKey = document.getElementById("api-key-input").value.trim();
     const modelSelect = document.getElementById("model-select");
+    const savedModel = window.savedConfigs[provider]?.model || "";
 
-    // Clear previous models
+    modelSelect.disabled = true;
     modelSelect.innerHTML = `<option disabled selected>Loading models...</option>`;
 
+    if (provider === "openai" && !apiKey) {
+      modelSelect.innerHTML = `<option disabled selected>Enter API key for OpenAI</option>`;
+      modelSelect.disabled = false;
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/models/${provider.toLowerCase()}`);
-      if (!response.ok) throw new Error("Model list fetch failed");
+      const url = `/api/models/${provider}${apiKey ? `?api_key=${encodeURIComponent(apiKey)}` : ''}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        alert("Failed to load models:\n" + errorText);
+        throw new Error(errorText || "Model list fetch failed");
+      }
 
       const models = await response.json();
-
       modelSelect.innerHTML = "";
+      modelSelect.disabled = false;
 
       if (Array.isArray(models) && models.length > 0) {
         models.forEach((model) => {
           const option = document.createElement("option");
           option.value = model;
           option.textContent = model;
+          if (model === savedModel) option.selected = true;
           modelSelect.appendChild(option);
         });
       } else {
@@ -112,28 +131,44 @@
     } catch (err) {
       console.error("Error loading models:", err);
       modelSelect.innerHTML = `<option disabled>Error loading models</option>`;
+      modelSelect.disabled = false;
     }
   }
 
-  document.getElementById('ai-config-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const provider = document.getElementById('provider-select').value;
-    const model = document.getElementById('model-select').value;
-    const apiKey = document.getElementById('api-key-input').value;
-
-    fetch('/api/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider, model, api_key: apiKey })
-    })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.message || data.error || 'Unexpected response');
-      loadSection('config');
-    })
-    .catch(error => console.error('Error saving configuration:', error));
+  document.getElementById("provider-select").addEventListener("change", () => {
+    const provider = document.getElementById("provider-select").value.toLowerCase();
+    const saved = window.savedConfigs[provider];
+    document.getElementById("api-key-input").value = saved?.api_key || "";
+    document.getElementById("model-select").innerHTML = `<option disabled selected>Loading models...</option>`;
+    loadModels();
   });
 
-  // Load models immediately on first load
-  updateModelOptions();
+  document.getElementById("api-key-input").addEventListener("blur", loadModels);
+
+  document.getElementById("ai-config-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    const provider = document.getElementById("provider-select").value.toLowerCase();
+    const model = document.getElementById("model-select").value;
+    const apiKey = document.getElementById("api-key-input").value;
+
+    fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider, model, api_key: apiKey }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(data.message || data.error || "Unexpected response");
+        loadPartial("config");
+      })
+      .catch((error) => console.error("Error saving configuration:", error));
+  });
+
+  // Initialize correct values on first load
+  window.addEventListener("DOMContentLoaded", () => {
+    const initialProvider = document.getElementById("provider-select").value.toLowerCase();
+    const saved = window.savedConfigs[initialProvider];
+    document.getElementById("api-key-input").value = saved?.api_key || "";
+    loadModels();
+  });
 </script>

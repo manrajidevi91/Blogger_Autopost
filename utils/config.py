@@ -22,14 +22,25 @@ def save_sites_data(data):
         json.dump(data, f, indent=4)
 
 def load_ai_config():
-    """Load global AI provider configuration."""
+    """Load global AI provider configuration with safe fallback."""
     if not os.path.exists(CONFIG_DIR):
         os.makedirs(CONFIG_DIR)
+
     if not os.path.exists(AI_CONFIG_FILE):
         with open(AI_CONFIG_FILE, 'w') as f:
-            json.dump({}, f)
-    with open(AI_CONFIG_FILE, 'r') as f:
-        return json.load(f)
+            json.dump({"providers": {}}, f)
+
+    try:
+        with open(AI_CONFIG_FILE, 'r') as f:
+            content = f.read().strip()
+            if not content:
+                raise json.JSONDecodeError("Empty file", "", 0)
+            return json.loads(content)
+    except json.JSONDecodeError:
+        # Corrupted or empty file — reset to defaults
+        with open(AI_CONFIG_FILE, 'w') as f:
+            json.dump({"providers": {}}, f)
+        return {"providers": {}}
 
 def save_ai_config(data):
     """Persist global AI provider configuration."""

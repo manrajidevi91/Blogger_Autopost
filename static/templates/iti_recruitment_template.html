@@ -1,0 +1,108 @@
+<div>
+
+    <div>
+      <b>({{ org_code }}) {{ org_name }} Recruitment {{ year }}:</b>
+      <u> {{ org_name_hi }} </u> ने {{ post_name_hi }} पद के लिए विज्ञापन के द्वारा ऑनलाइन आवेदन आमंत्रित मांगे है। आवेदन की अंतिम दिनांक, शैक्षणिक योग्यता, चयन प्रक्रिया आदि के बारे में यहाँ से जाने।
+    </div>
+  
+    <div class="separator" style="clear: both;">
+      <a href="{{ banner_image_url }}" style="display: block; padding: 1em 0px; text-align: center;">
+        <img alt="{{ org_name }} {{ year }}" border="0" height="400" src="{{ banner_image_url }}" width="640" />
+      </a>
+    </div>
+  
+    <div>
+      <h3>{{ org_name }} Recruitment</h3>
+      <p>{{ recruitment_description }}</p>
+    </div>
+  
+    <div>
+      <h3>{{ post_name_hi }} भर्ती पद विवरण:</h3>
+      <table>
+        <tbody>
+          <tr>
+            <td>Trade Name</td>
+            <td>कुल पोस्ट</td>
+          </tr>
+          {% for trade, count in trade_posts %}
+          <tr>
+            <td>{{ trade }}</td>
+            <td>{{ count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div><br />
+  
+    <div>{{ org_name_hi }} के कुल पदों की संख्या <b>{{ total_posts }}</b> है, विस्तृत जानकारी के लिए ऑफिसियल नोटिफिकेशन देखें।</div><br />
+  
+    <div>
+      <h3>महत्वपूर्ण तिथियाँ:</h3>
+      <table>
+        <tbody>
+          <tr><td><b>आवेदन प्रारंभ</b></td><td>: {{ start_date }}</td></tr>
+          <tr><td><b>आवेदन अंतिम तिथि</b></td><td>: {{ end_date }}</td></tr>
+        </tbody>
+      </table>
+    </div><br />
+  
+    <div>
+      <b>{{ org_name_hi }} में {{ post_name_hi }} भर्ती ऑनलाइन आवेदन कैसे करें:</b>
+      आवेदन हेतु <a href="{{ official_website }}">{{ official_website }}</a> पर जाएं।
+    </div><br />
+  
+    <div>
+      <h3>आयु सीमा ({{ end_date }} तक):</h3>
+      <table>
+        <tbody>
+          <tr><td><b>न्यूनतम आयु</b></td><td>: {{ min_age }}</td></tr>
+          <tr><td><b>अधिकतम आयु</b></td><td>: {{ max_age }}</td></tr>
+        </tbody>
+      </table>
+    </div><br />
+  
+    <div>
+      <h3>चयन प्रक्रिया:</h3>
+      <p>{{ selection_process }}</p>
+    </div><br />
+  
+    <div>
+      <h3>योग्यता विवरण:</h3>
+      <table>
+        <tbody>
+          <tr><td>पद</td><td>योग्यता</td></tr>
+          {% for title, qualification in qualifications %}
+          <tr><td>{{ title }}</td><td>{{ qualification }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div><br />
+  
+    <div>
+      <h3><b>महत्वपूर्ण लिंक:</b></h3>
+      <table>
+        <tbody>
+          <tr><td>ऑफिसियल नोटिफिकेशन</td><td><a href="{{ link_notification }}">: Download Now</a></td></tr>
+          <tr><td>ऑफिसियल वेबसाइट</td><td><a href="{{ official_website }}">: Click Here</a></td></tr>
+          <tr><td>ऑनलाइन आवेदन</td><td><a href="{{ link_apply }}">: Click Here</a></td></tr>
+          <tr><td><a href="https://t.me/iti_ceareer">: Click Here</a></td></tr>
+          <tr><td><a href="https://whatsapp.com/channel/0029VakdS5v4Crfas6NdEM3L">: Click Here</a></td></tr>
+        </tbody>
+      </table>
+    </div><br />
+  
+  </div>
+  
+  <style>
+    td { width: 38% !important; }
+    table {
+      border: 0.2px solid black !important;
+      height: auto !important;
+      width: 38%;
+    }
+    tr, th, td {
+      border-collapse: collapse !important;
+      border: 0.2px solid black !important;
+    }
+  </style>
+  
