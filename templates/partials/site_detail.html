@@ -147,8 +147,12 @@
 </div>
 
 <script type="text/javascript">
-  // Parse config JSON into an object to avoid template rendering issues
-  let savedConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
+  // Initialize config only once to avoid duplicate variable errors when
+  // this partial is loaded multiple times via the SPA navigation.
+  if (!window.siteDetailConfigs) {
+    window.siteDetailConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
+  }
+  let savedConfigs = window.siteDetailConfigs;
 
   async function refreshProviders() {
     try {
@@ -156,6 +160,7 @@
       if (res.ok) {
         const providers = await res.json();
         savedConfigs = { providers };
+        window.siteDetailConfigs = savedConfigs;
       }
     } catch (err) {
       console.error('⚠️ Failed to load providers:', err);
@@ -234,21 +239,22 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    console.log("📦 DOM loaded, initializing form...");
-    await refreshProviders();
-    updateInputField();
-    populateProvidersAndModels();
-  });
+  if (!window.siteDetailEventsBound) {
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log("📦 DOM loaded, initializing form...");
+      await refreshProviders();
+      updateInputField();
+      populateProvidersAndModels();
+    });
 
-  document.getElementById('ai-provider').addEventListener('change', () => {
-    console.log("🔄 Provider changed");
-    updateModelOptions();
-  });
+    document.getElementById('ai-provider').addEventListener('change', () => {
+      console.log("🔄 Provider changed");
+      updateModelOptions();
+    });
 
   document.getElementById('schedule-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    console.log("🚀 Submitting schedule form...");
+      e.preventDefault();
+      console.log("🚀 Submitting schedule form...");
 
     const inputEl = document.querySelector('#source-input-container input');
     let sourceInput = '';
@@ -310,4 +316,6 @@
       alert('Failed to create schedule');
     });
   });
+    window.siteDetailEventsBound = true;
+  }
 </script>
