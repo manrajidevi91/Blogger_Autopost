@@ -5,6 +5,7 @@ CONFIG_DIR = 'config'
 SITES_DATA_FILE = os.path.join(CONFIG_DIR, 'sites_data.json')
 # Store global AI provider and API key
 AI_CONFIG_FILE = os.path.join(CONFIG_DIR, 'ai_config.json')
+AI_CONFIG_EXAMPLE_FILE = os.path.join(CONFIG_DIR, 'ai_config.example.json')
 
 def load_sites_data():
     if not os.path.exists(CONFIG_DIR):
@@ -21,14 +22,29 @@ def save_sites_data(data):
     with open(SITES_DATA_FILE, 'w') as f:
         json.dump(data, f, indent=4)
 
+def _initialize_ai_config():
+    """Create ``AI_CONFIG_FILE`` using the example file if available."""
+    if os.path.exists(AI_CONFIG_EXAMPLE_FILE):
+        try:
+            with open(AI_CONFIG_EXAMPLE_FILE, "r") as src:
+                data = json.load(src)
+        except Exception:
+            data = {"providers": {}}
+    else:
+        data = {"providers": {}}
+
+    with open(AI_CONFIG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+    return data
+
+
 def load_ai_config():
     """Load global AI provider configuration with safe fallback."""
     if not os.path.exists(CONFIG_DIR):
         os.makedirs(CONFIG_DIR)
 
     if not os.path.exists(AI_CONFIG_FILE):
-        with open(AI_CONFIG_FILE, 'w') as f:
-            json.dump({"providers": {}}, f)
+        return _initialize_ai_config()
 
     try:
         with open(AI_CONFIG_FILE, 'r') as f:
@@ -38,9 +54,7 @@ def load_ai_config():
             return json.loads(content)
     except json.JSONDecodeError:
         # Corrupted or empty file — reset to defaults
-        with open(AI_CONFIG_FILE, 'w') as f:
-            json.dump({"providers": {}}, f)
-        return {"providers": {}}
+        return _initialize_ai_config()
 
 def save_ai_config(data):
     """Persist global AI provider configuration."""

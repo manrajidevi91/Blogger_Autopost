@@ -107,7 +107,9 @@
 
     <div class="mb-3">
       <label for="ai-provider">AI Provider</label>
-      <select id="ai-provider" name="ai_provider" required></select>
+      <select id="ai-provider" name="ai_provider" required>
+        <option disabled selected>Loading...</option>
+      </select>
     </div>
 
     <div class="mb-3">
@@ -145,8 +147,25 @@
 </div>
 
 <script type="text/javascript">
-  const savedConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
-  console.log("✅ Loaded savedConfigs:", savedConfigs);
+  // Initialize config only once to avoid duplicate variable errors when
+  // this partial is loaded multiple times via the SPA navigation.
+  if (!window.siteDetailConfigs) {
+    window.siteDetailConfigs = JSON.parse(`{{ ai_config | tojson | safe }}`);
+  }
+  let savedConfigs = window.siteDetailConfigs;
+
+  async function refreshProviders() {
+    try {
+      const res = await fetch('/api/providers');
+      if (res.ok) {
+        const providers = await res.json();
+        savedConfigs = { providers };
+        window.siteDetailConfigs = savedConfigs;
+      }
+    } catch (err) {
+      console.error('⚠️ Failed to load providers:', err);
+    }
+  }
 
   function updateInputField() {
     const container = document.getElementById('source-input-container');
@@ -220,20 +239,22 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log("📦 DOM loaded, initializing form...");
-    updateInputField();
-    populateProvidersAndModels();
-  });
+  if (!window.siteDetailEventsBound) {
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log("📦 DOM loaded, initializing form...");
+      await refreshProviders();
+      updateInputField();
+      populateProvidersAndModels();
+    });
 
-  document.getElementById('ai-provider').addEventListener('change', () => {
-    console.log("🔄 Provider changed");
-    updateModelOptions();
-  });
+    document.getElementById('ai-provider').addEventListener('change', () => {
+      console.log("🔄 Provider changed");
+      updateModelOptions();
+    });
 
   document.getElementById('schedule-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    console.log("🚀 Submitting schedule form...");
+      e.preventDefault();
+      console.log("🚀 Submitting schedule form...");
 
     const inputEl = document.querySelector('#source-input-container input');
     let sourceInput = '';
@@ -295,4 +316,6 @@
       alert('Failed to create schedule');
     });
   });
+    window.siteDetailEventsBound = true;
+  }
 </script>

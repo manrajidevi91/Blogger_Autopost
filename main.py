@@ -333,6 +333,14 @@ def api_config():
     save_ai_config({"providers": providers_cfg})
     return jsonify({"message": f"Configuration saved for {provider}"}), 200
 
+
+@app.route('/api/providers', methods=['GET'])
+def api_providers():
+    """Return configured AI providers from ``ai_config.json``."""
+    cfg = load_ai_config()
+    providers = cfg.get("providers", {})
+    return jsonify(providers)
+
 @app.route('/api/ocr/pdf', methods=['POST'])
 def api_ocr_pdf():
     if 'file' not in request.files:
