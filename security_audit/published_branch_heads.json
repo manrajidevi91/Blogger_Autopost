@@ -1,0 +1,197 @@
+{
+  "default_ref": "refs/heads/master",
+  "branches": [
+    {
+      "ref": "refs/heads/ataqnu-codex/update-configuration-for-ai-model-provider",
+      "head": "7d3b54c0b6d1d80e51c369bddc33c91b61e2e2c2"
+    },
+    {
+      "ref": "refs/heads/codex/add-before_request-handler-and-integrate-apscheduler",
+      "head": "d6ad1170eca2ee951a568510a642b76e5277caa9"
+    },
+    {
+      "ref": "refs/heads/codex/add-final-newline-to-main.py-and-sites.py",
+      "head": "7373bf6d30fa8d960fa624c5c68820917e2c5c4d"
+    },
+    {
+      "ref": "refs/heads/codex/add-functions-for-chatgpt-and-gemini-apis",
+      "head": "3125e8906c5a66341da283c45678538094441e24"
+    },
+    {
+      "ref": "refs/heads/codex/add-helper-functions-for-site-credentials",
+      "head": "2cb93f61e88bb734723a83b686c96119073e1d15"
+    },
+    {
+      "ref": "refs/heads/codex/add-register_jobs-and-get_schedule-functions",
+      "head": "94162bb1ab79197d085f75038e0c2ca6be1ce279"
+    },
+    {
+      "ref": "refs/heads/codex/add-sidebar-link-for-templates",
+      "head": "455829e2432ead1b7771b00de4809c1690816e8c"
+    },
+    {
+      "ref": "refs/heads/codex/add-site-logo-input-field-and-handler",
+      "head": "2d8f7bed6d5ff4b44e82fc31402664cf7e2ba640"
+    },
+    {
+      "ref": "refs/heads/codex/add-template2.html-with-placeholder-content",
+      "head": "17527a454d7744723778ad5b96c177b5bfb92088"
+    },
+    {
+      "ref": "refs/heads/codex/automate-blog-post-publishing-process",
+      "head": "7f5eb35bd724c32979b8cae7370b7692ba205560"
+    },
+    {
+      "ref": "refs/heads/codex/build-schedule-management-view",
+      "head": "f5122ffc56b0090b8b07f9a2654bc2d3f7e2a51d"
+    },
+    {
+      "ref": "refs/heads/codex/create-and-commit-schedules.json",
+      "head": "345056c4a752488cd9cfea6997ea56d2057a34cb"
+    },
+    {
+      "ref": "refs/heads/codex/create-main-layout-page",
+      "head": "00c8046c77e7ad697a56288bbd230106b4e6258d"
+    },
+    {
+      "ref": "refs/heads/codex/create-per-site-management-panel",
+      "head": "d12ca1cb33affd204374f4b81052bd14beca113a"
+    },
+    {
+      "ref": "refs/heads/codex/create-site-templates-management-ui",
+      "head": "e9b918c7a59aef96a17ccf22b8e5af0b2e3ad05d"
+    },
+    {
+      "ref": "refs/heads/codex/create-template1.html-and-commit",
+      "head": "9aa8e88812e9d7313c38c5c4037a29e10922d4b0"
+    },
+    {
+      "ref": "refs/heads/codex/display-blogger-sites-as-cards",
+      "head": "407eca8555c84f6dd78344a82883a910d1ed333c"
+    },
+    {
+      "ref": "refs/heads/codex/dynamically-populate-ai-provider-dropdown",
+      "head": "aebf5497ee9d89f78d31e14900210fbd5ff111e7"
+    },
+    {
+      "ref": "refs/heads/codex/fix-redirection-issue-to-/none",
+      "head": "1583edb5b885f0d5269f743ae418a43f86984851"
+    },
+    {
+      "ref": "refs/heads/codex/fix-routing-and-navigation-behavior",
+      "head": "c4e8070bc96442635d2845a5ce24d66d362a1dd5"
+    },
+    {
+      "ref": "refs/heads/codex/generate-tasks-for-file-creation",
+      "head": "bac52e57c7a9aa302b7267e2ae80cae5c7c1b745"
+    },
+    {
+      "ref": "refs/heads/codex/handle-file-not-found-and-ocr-errors-separately",
+      "head": "d50c085e05fc393cb3768f5f7d167d142212cf21"
+    },
+    {
+      "ref": "refs/heads/codex/handle-file-upload-and-store-data",
+      "head": "b1341b3554b4924ded9f7f3cf1e47ee7f15edc9d"
+    },
+    {
+      "ref": "refs/heads/codex/handle-os.listdir-errors-and-add-docstrings",
+      "head": "d9f5adec2008b7b4cbd9b6492904e40afe361e6d"
+    },
+    {
+      "ref": "refs/heads/codex/handle-script-elements-after-setting-innerhtml",
+      "head": "5191fcaeadf2def5385fa8b2ec91c0a9a6014088"
+    },
+    {
+      "ref": "refs/heads/codex/handle-site-logo-upload-and-save-site-data",
+      "head": "a84063520b9cb9343266ffbf6ce675381cbf13cd"
+    },
+    {
+      "ref": "refs/heads/codex/implement-ai-model-preferences-panel",
+      "head": "5da9c2d6751f3038ca9bd2fa2d671bd6a87cc965"
+    },
+    {
+      "ref": "refs/heads/codex/implement-partial-reloads-and-file-uploads",
+      "head": "759a93f7ee106d50fa7c958e345690e79350b71c"
+    },
+    {
+      "ref": "refs/heads/codex/implement-site-creation-form",
+      "head": "57ddf942e4b5a6b3559cbd58e978b3ba1245ef50"
+    },
+    {
+      "ref": "refs/heads/codex/improve-error-handling-and-docstring",
+      "head": "6166f72294c4299aebbafed8c89380dc9cae1744"
+    },
+    {
+      "ref": "refs/heads/codex/modify-create_post-to-handle-authentication-in-publish_post",
+      "head": "9638c1685af9416c9ccefae078d1e73bad8cf12a"
+    },
+    {
+      "ref": "refs/heads/codex/remove-api_key-from-/api/sites-post-handler",
+      "head": "3b73483fb6be611f6e27ee5c694006178141bc55"
+    },
+    {
+      "ref": "refs/heads/codex/remove-blogger-api-key-from-form",
+      "head": "9230a7c2fa4fe03ba48276e56ab0cd656784b59b"
+    },
+    {
+      "ref": "refs/heads/codex/remove-bootstrap-and-add-custom-styles",
+      "head": "4be8d1055c90c2e9e7430f2d1a9a0636825ae5f7"
+    },
+    {
+      "ref": "refs/heads/codex/remove-credentials-from-repository-history",
+      "head": "2ffeb0a252c52545d9d7fd7ee7fc57a6b900dfc9"
+    },
+    {
+      "ref": "refs/heads/codex/remove-trailing-space-and-add-newline",
+      "head": "68ed83a6ee0960dca7bf6a7e9e43e573b31ea015"
+    },
+    {
+      "ref": "refs/heads/codex/update-card-title-and-alt-text-fallback",
+      "head": "b67527df82096495b16d5e2520d98fd4812423a7"
+    },
+    {
+      "ref": "refs/heads/codex/update-configuration-for-ai-model-provider",
+      "head": "edb834d19014db83fe868d4d630aef3b84ec8620"
+    },
+    {
+      "ref": "refs/heads/codex/update-create_site.html-form",
+      "head": "e48c0f6f05db2170654bfdb349f87274eeb46b8d"
+    },
+    {
+      "ref": "refs/heads/codex/update-publish_post-to-use-oauth-authentication",
+      "head": "49fdda8e87d2900adc27fab6830ab971dab41c22"
+    },
+    {
+      "ref": "refs/heads/codex/update-site-card-styles-and-script",
+      "head": "65c5d896d853aa90f4687146c0dda6b63d013f19"
+    },
+    {
+      "ref": "refs/heads/jn6f9q-codex/update-configuration-for-ai-model-provider",
+      "head": "089c1587832be5b8ca99788e2668d9395e685457"
+    },
+    {
+      "ref": "refs/heads/kc5gkz-codex/dynamically-populate-ai-provider-dropdown",
+      "head": "0577b7f4e45de41f6de782ccf219d48b91380dab"
+    },
+    {
+      "ref": "refs/heads/kmli7b-codex/handle-script-elements-after-setting-innerhtml",
+      "head": "0dd7d56f5b7be619bce13817dcd6084e805f3308"
+    },
+    {
+      "ref": "refs/heads/master",
+      "head": "7a04424979c1f71615c114a2ce6c8d856480bfc3"
+    },
+    {
+      "ref": "refs/heads/revert-34-codex/remove-bootstrap-and-add-custom-styles",
+      "head": "8af28cbe11d197e779c5762dcef0e23cfd0d11d9"
+    },
+    {
+      "ref": "refs/heads/u6n8lx-codex/handle-script-elements-after-setting-innerhtml",
+      "head": "dc4522e42be3a680f925a82d99e3237e8a083096"
+    },
+    {
+      "ref": "refs/heads/x35iw2-codex/implement-partial-reloads-and-file-uploads",
+      "head": "34756385d0cb7913e98f863dbfe81aa260df1aa1"
+    }
+  ]
+}
