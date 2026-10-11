@@ -4,7 +4,7 @@ No arguments scans all indexed files. All SQLite databases are forbidden, includ
 Filename arguments also use index blobs, never a possibly different working copy.
 Reports contain filenames, detector names and counts; no credential values.
 """
-import pathlib,re,sqlite3,subprocess,sys,io,zipfile,tarfile,gzip,bz2,lzma
+import pathlib,re,sqlite3,subprocess,sys,io,zipfile,tarfile,gzip,bz2,lzma,zlib
 PATTERNS={
  'google_api_key':rb'AIza[0-9A-Za-z_-]{35}',
  'openai_key':rb'sk-(?:proj-[A-Za-z0-9_-]{40,}|[A-Za-z0-9]{32,})(?![A-Za-z0-9_-])',
@@ -92,7 +92,7 @@ def archive_databases(data,name,depth=0):
   for member,content in members:
    if content.startswith(b'SQLite format 3\x00') or member.lower().endswith(EXT):findings.append(('archive_contains_sqlite_forbidden',1))
    if content.startswith(b'PK') or member.lower().endswith(('.7z','.rar','.tar','.tar.gz','.tgz','.gz','.bz2','.xz')):findings.extend(archive_databases(content,member,depth+1))
- except (zipfile.BadZipFile,tarfile.TarError,ValueError,NotImplementedError,OSError) as e:raise RuntimeError('Archive could not be fully checked') from e
+ except (zipfile.BadZipFile,tarfile.TarError,ValueError,NotImplementedError,OSError,EOFError,zlib.error) as e:raise RuntimeError('Archive could not be fully checked') from e
  return findings
 
 class IndexBlobs:
@@ -118,7 +118,7 @@ def main(args):
  staged='--staged' in args;requested={p.replace('\\','/') for p in args if p!='--staged'}
  try:
   changed=set(git('diff','--cached','--name-only','--diff-filter=ACMR','-z').decode('utf-8',errors='surrogateescape').split('\x00')) if staged else None
-  records=git('ls-files','--stage','-z').split(b'\x00');found=set();bad=0
+  records=git('ls-files','--full-name','--stage','-z','--',':/').split(b'\x00');found=set();bad=0
   with IndexBlobs() as blobs:
    for record in records:
     if not record:continue
